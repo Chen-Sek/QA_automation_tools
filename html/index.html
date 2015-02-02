@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html ng-app="AutomationTools">
+    <head>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/angular.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/app.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-2.1.3.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='semantic/semantic.min.js') }}"></script>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='semantic/semantic.min.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}" />
+        <title>QA automation tools</title>
+
+    </head>
+    <body ng-controller = "MainController as main">
+      <div ng-include = "'static/html/menu.html'"></div>
+      <div style = "margin-left:10px; margin-right:10px;" ng-show = "show_weekly_builds">
+         <div ng-include = "'static/html/builds.html'"></div>
+      </div>
+      <div style = "margin-left:10px; margin-right:10px;" ng-hide = "show_weekly_builds">
+        
+      </div>
+
+    </body>
+</html>
