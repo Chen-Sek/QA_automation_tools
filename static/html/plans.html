@@ -1,0 +1,21 @@
+<h4>Билд-планы</h4>
+<div style = "background-color:white;">
+  <div class="ui vertical fluid menu">
+    <a class="item" ng-repeat = "plan in existingPlans" ng-click = "bambooGetBuilds(plan.bamboo_plan + '-JOB1', plan.name)">
+      <b>[[plan.name]]</b> <br>([[plan.bamboo_plan]])
+    </a> 
+    <a class="item" ng-click = "bambooAuth(user)">
+      Добавить билд-план
+    </a> 
+  </div> 
+</div> 
+
+<div class="ui divided list">
+  <div class="item" ng-repeat = "plan in plans">
+    <div class="right floated tiny ui button" ng-click = "bambooAddPlan(plan.name, plan.key)">Добавить</div>
+    <div class="content">
+      <div class="header">[[plan.name]]</div>
+      [[plan.key]]
+    </div>
+  </div> 
+</div>

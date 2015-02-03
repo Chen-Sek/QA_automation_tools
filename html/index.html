@@ -12,10 +12,20 @@
     </head>
     <body ng-controller = "MainController as main">
       <div ng-include = "'static/html/menu.html'"></div>
-      <div style = "margin-left:10px; margin-right:10px;" ng-show = "show_weekly_builds">
-         <div ng-include = "'static/html/builds.html'"></div>
+      <div ng-show = "show_weekly_builds">
+        <div class="ui two column grid" ng-controller="AuthController">
+          <div class="three wide column">
+            <div ng-include = "'static/html/plans.html'"></div>
+          </div>
+          <div class="twelve wide column" ng-show = "show_builds">
+            <div ng-include = "'static/html/builds.html'"></div>
+          </div>
+          <div class="twelve wide column" ng-show = "selected_build">
+            <div ng-include = "'static/html/build.html'"></div>
+          </div>
+        </div>
       </div>
-      <div style = "margin-left:10px; margin-right:10px;" ng-hide = "show_weekly_builds">
+      <div style = "" ng-hide = "show_weekly_builds">
         
       </div>
 

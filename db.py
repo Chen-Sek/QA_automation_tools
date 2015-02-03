@@ -1,6 +1,5 @@
 from peewee import *
 from time import gmtime, strftime
-import uuid
 import os
 
 # Путь к БДы
@@ -57,11 +56,11 @@ class SettingsDB(object):
 				parameter.save()
 
 		# инициализация паарметров сборок
-		try:
-			WeeklyBuilds.get(WeeklyBuilds.name == "Axxon Next v.3.6.3")
-		except:
-			build = WeeklyBuilds.create(name = "Axxon Next v.3.6.3")
-			build.save()
+		#try:
+		#	WeeklyBuilds.get(WeeklyBuilds.name == "Axxon Next v.3.6.3")
+		#except:
+		#	build = WeeklyBuilds.create(name = "Axxon Next v.3.6.3")
+		#	build.save()
 
 ##________________ операции с БД ________________
 
@@ -78,7 +77,14 @@ class SettingsDB(object):
 				return False
 		else:
 			return False
-	# новая сборка
+
+	def getMainSettings(self):
+		settings = {}
+		for s in MainSettings.select():
+			settings[s.name] = s.value
+		return settings
+
+	# новый план
 	def createBuild(self, name, plan, filters, page):
 		if(name == None):
 			_name = "New build"
@@ -94,7 +100,7 @@ class SettingsDB(object):
 		else:
 			return False
 
-	# обновление сборки
+	# обновление плана
 	def updateBuild(self, id = None, name = None, plan = None, filters = None, page = None):
 		if(id != None):
 			try:
@@ -116,7 +122,7 @@ class SettingsDB(object):
 		else:
 			return False
 
-	# удаление сборки
+	# удаление плана
 	def removeBuild(self, id):
 		if(id != None):
 			try:
@@ -128,10 +134,20 @@ class SettingsDB(object):
 		else:
 			return False
 
-	# получить список созданных сборок
+	# получить список созданных планов
 	def getBuilds(self):
 		builds = []
 		for b in WeeklyBuilds.select():
 			build = {'id': b.id, 'name': b.name, 'bamboo_plan': b.bamboo_plan, 'jira_filters': b.jira_filters, 'confluence_page': b.confluence_page}
 			builds.append(build)
 		return builds
+
+	# получить план по ключу
+	def getBuild(self, key):
+		build = {}
+		try:
+			b = WeeklyBuilds.get(WeeklyBuilds.bamboo_plan == key)
+			build = {'id': b.id, 'name': b.name, 'bamboo_plan': b.bamboo_plan, 'jira_filters': b.jira_filters, 'confluence_page': b.confluence_page}
+		except:
+			pass
+		return build
