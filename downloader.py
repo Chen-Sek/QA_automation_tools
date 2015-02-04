@@ -12,7 +12,8 @@ appSettings = dataBase.getMainSettings()
 username = appSettings['bamboo_token'].split(":")[0]
 password = appSettings['bamboo_token'].split(":")[1]
 
-tempDir = "temp\\"
+# путь для загрузки
+dlPath = "\\\\fs\\weekly\\test\\"
 
 # управляет загрузкой артефактов с bamboo на fs
 class Downloader:
@@ -73,14 +74,20 @@ class Downloader:
 			
 			# функция потока загрузки
 			def download(_fullLink, stop_event):
-				local_filename = tempDir + _fullLink.split('/')[-1]
+				filename = _fullLink.split('/')[-1]
+				dirname  = filename.split('/')[-1][ : len(filename) - 9]
+
+				if not os.path.exists(dlPath + dirname):
+					os.makedirs(dlPath + dirname)
+
+				fullPath = dlPath + dirname + "\\" + filename
 				r = requests.get(_fullLink, auth=HTTPBasicAuth(username, password), stream=True)
 				
 				self.total = int(r.headers.get('content-length'))
 				
 				print("File length: " + str(self.total))
 				
-				with open(local_filename, 'wb') as f:
+				with open(fullPath, 'wb') as f:
 					for chunk in r.iter_content(chunk_size=1024): 
 						if chunk: # filter out keep-alive new chunks
 							f.write(chunk)
@@ -90,11 +97,11 @@ class Downloader:
 								f.close()
 								self.downloaded = 0
 								try:
-									os.remove(local_filename)
+									os.remove(fullPath)
 								except:
 									pass
 								return False
-				return local_filename
+				return fullPath
 			
 			# создание и запуск потока
 			self.thread = Thread( target = download, args = (fullLink, self.t_stop, ) )
@@ -104,4 +111,9 @@ class Downloader:
 			return False
 
 
+	def createDir(self):
+		name = "\\\\fs\\weekly\\test"
+		print(name)
+		if not os.path.exists(name):
+			os.makedirs(name)
 

@@ -51,9 +51,13 @@
     }
 
     $scope.bambooGetBuilds = function(key, name) {
+      $scope.show_builds = false;
       $scope.selected_build = false
       $scope.show_placeholder = true
-      $http.get('/plans/' + key + '/builds').success(function(data, status, headers, config) {
+      postfix = ""
+      if(key.indexOf("AN3") > -1)
+        postfix = '-JOB1'
+      $http.get('/plans/' + key + postfix + '/builds').success(function(data, status, headers, config) {
         $scope.builds = data.results.result;
         $scope.current_plan = name;
         $scope.show_builds = true;

@@ -3,7 +3,7 @@
   <div class="ui vertical fluid menu">
     <a class="item" ng-repeat = "plan in existingPlans" 
                     ng-if = "plan.name.indexOf('Axxon Next') > -1 && plan.enabled" 
-                    ng-click = "bambooGetBuilds(plan.key + '-JOB1', plan.name)">
+                    ng-click = "bambooGetBuilds(plan.key, plan.name)">
       <b>[[plan.name]]</b> <br>([[plan.key]])
     </a> 
   </div> 

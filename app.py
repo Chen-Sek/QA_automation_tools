@@ -41,7 +41,6 @@ class Settings(Resource):
 # получение списка планов с bamboo
 class BambooAuth(Resource):
 	def get(self):
-		print(username, password)
 		#r = requests.get(appSettings['bamboo_url'] +'plan?os_authType=basic', auth=HTTPBasicAuth('roma,nbukharov', '21c0cd79Itv'))
 		r = requests.get(appSettings['bamboo_url'] + 'plan.json?os_authType=basic', auth=HTTPBasicAuth(username, password))
 		return r.json()
