@@ -2,6 +2,8 @@ import os
 import requests
 from requests.auth import HTTPBasicAuth
 from html.parser import HTMLParser
+import threading
+from threading import Thread
 from db import *
 
 dataBase = SettingsDB()
@@ -15,6 +17,26 @@ tempDir = "temp\\"
 # управляет загрузкой артефактов с bamboo на fs
 class Downloader:
 
+	# поток, в котором будет выполняться загрузка
+	thread     = None
+	# событие для завершения потока
+	t_stop       = threading.Event()
+	# загружено на данный момент
+	downloaded = 0
+	# размер файла
+	total = 0
+
+	def getProgress(self):
+		return { "downloaded": self.downloaded, "total": self.total }
+
+	def cancelDownload(self):
+		# установка события завершения потока
+		self.t_stop.set()
+		# когда поток остановился, сбрасываем событие и меняем состояние монитора
+		self.thread.join()
+		self.t_stop.clear()
+		return { "message": "Download cancelled" }
+
 	# при загрузе артефакта AN сначала нужно распарсить страницу, получаемую
 	# по адресу типа https://build.itvgroup.ru/bamboo/browse/ASIP-AN362-186/artifact/JOB1/installer/
 	# и получить ссылку на full installer типа 
@@ -23,7 +45,10 @@ class Downloader:
 	def downloadAxxonNextArtifact(self, _link):
 		prefix = "https://build.itvgroup.ru/"
 		# получение страницы, которую нужно парсить
-		page = requests.get(_link, auth=HTTPBasicAuth(username, password))
+		try:
+			page = requests.get(_link, auth=HTTPBasicAuth(username, password))
+		except:
+			return False
 
 		# класс для парсера
 		class MyHTMLParser(HTMLParser):
@@ -42,19 +67,41 @@ class Downloader:
 		parser = MyHTMLParser()
 		parser.feed(page.text)
 		link = parser.data
-		print(link)
+
 		if(link != None):
-			fullLink = prefix + link
-			print("test1")
-			# загрузка 
-			local_filename = tempDir + fullLink.split('/')[-1]
-			r = requests.get(fullLink, auth=HTTPBasicAuth(username, password), stream=True)
-			with open(local_filename, 'wb') as f:
-				for chunk in r.iter_content(chunk_size=1024): 
-					if chunk: # filter out keep-alive new chunks
-						f.write(chunk)
-						f.flush()
-			return local_filename
+			fullLink = str(prefix + link)
+			
+			# функция потока загрузки
+			def download(_fullLink, stop_event):
+				local_filename = tempDir + _fullLink.split('/')[-1]
+				r = requests.get(_fullLink, auth=HTTPBasicAuth(username, password), stream=True)
+				
+				self.total = int(r.headers.get('content-length'))
+				
+				print("File length: " + str(self.total))
+				
+				with open(local_filename, 'wb') as f:
+					for chunk in r.iter_content(chunk_size=1024): 
+						if chunk: # filter out keep-alive new chunks
+							f.write(chunk)
+							self.downloaded += len(chunk)
+							f.flush()
+							if(stop_event.is_set()):
+								f.close()
+								self.downloaded = 0
+								try:
+									os.remove(local_filename)
+								except:
+									pass
+								return False
+				return local_filename
+			
+			# создание и запуск потока
+			self.thread = Thread( target = download, args = (fullLink, self.t_stop, ) )
+			self.thread.start()
+			return True
 		else:
 			return False
+
+
 

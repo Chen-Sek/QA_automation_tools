@@ -19,6 +19,43 @@
     </div>
 </div>
 <div class="ui divider"></div>
-<p>выберите артефакт, который нужно выложить<p>
+<div ng-repeat = "a in artifacts">
+  <div class="ui purple button" ng-click = "downloadBuild(a)" ng-class = "controlClass">[[downloadButtonName + " " + a.split('/')[a.split('/').length-2] ]]</div>
+</div>
+<div class="ui divider"></div>
+<div ng-show = "showDownloadProgress">
+  <div class="ui purple progress" data-percent="0" id="dlProgress">
+    <div class="bar">
+      <div class="progress"></div>
+    </div>
+    <div class="label">Загрузка сборки...</div>
+  </div>
 
-[[artifact.link.href]]
+  <div class="ui two column grid">
+    <div class="column">
+      <div class="ui horizontal segment">
+        <div class="ui horizontal mini statistic">
+          <div class="value">
+            [[total]]
+          </div>
+          <div class="label">
+            Общий размер
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="column">
+      <div class="ui horizontal segment">
+        <div class="ui horizontal mini statistic">
+          <div class="value">
+            [[downloaded]]
+          </div>
+          <div class="label">
+            Загружено
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><br>
+  <div class="ui purple button" ng-click = "cancelDownload()" >Отмена</div>
+</div>

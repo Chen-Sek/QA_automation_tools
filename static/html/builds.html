@@ -1,22 +1,23 @@
-<h4>[[current_plan]]. Выберите сборку:</h4>
-
-<table class="ui table">
-  <thead>
-    <tr>
-      <th>Номер</th>
-      <th>Key</th>
-      <th>Состояние сборки</th>
-      <th>Статус</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr class="item" ng-repeat = "build in builds" ng-click = "selectBuild(build)">
-      <td>[[build.buildNumber]]</td>
-      <td>[[build.buildResultKey]]</td>
-      <td ng-if = "build.buildState == 'Failed'" class = "negative">[[build.buildState]]</td>
-      <td ng-if = "build.buildState == 'Successful'" class = "positive">[[build.buildState]]</td>
-      <td>[[build.lifeCycleState]]</td>
-    </tr>
-  </tbody>
-</table>
+<div ng-show = "show_builds">
+  <h4>Выберите сборку [[current_plan]]</h4>
+  <table class="ui table">
+    <thead>
+      <tr>
+        <th>Номер</th>
+        <th>Key</th>
+        <th>Состояние сборки</th>
+        <th>Статус</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="item" ng-repeat = "build in builds" ng-click = "selectBuild(build)">
+        <td>[[build.buildNumber]]</td>
+        <td>[[build.buildResultKey]]</td>
+        <td ng-if = "build.buildState == 'Failed'" class = "negative">[[build.buildState]]</td>
+        <td ng-if = "build.buildState == 'Successful'" class = "positive">[[build.buildState]]</td>
+        <td>[[build.lifeCycleState]]</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 

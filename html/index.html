@@ -13,14 +13,20 @@
     <body ng-controller = "MainController as main">
       <div ng-include = "'static/html/menu.html'"></div>
       <div ng-show = "show_weekly_builds">
-        <div class="ui two column grid" ng-controller="AuthController">
+        <div class="ui two column centered grid" ng-controller="AuthController">
           <div class="three wide column">
             <div ng-include = "'static/html/plans.html'"></div>
           </div>
-          <div class="twelve wide column" ng-show = "show_builds">
+          <div class="eight wide column" ng-hide="selected_build">
+            <div ng-hide = "show_placeholder || show_builds || selected_build">
+              <div ng-include = "'static/html/placeholder_init.html'"></div>
+            </div>
+            <div ng-show = "show_placeholder">
+              <div ng-include = "'static/html/placeholder_load.html'"></div>
+            </div>
             <div ng-include = "'static/html/builds.html'"></div>
           </div>
-          <div class="twelve wide column" ng-show = "selected_build">
+          <div class="eight wide column" ng-show = "selected_build">
             <div ng-include = "'static/html/build.html'"></div>
           </div>
         </div>

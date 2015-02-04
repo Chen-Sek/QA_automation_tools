@@ -7,6 +7,7 @@
   }]);
 
   app.controller('MainController', function($scope){
+    $scope.menuBuildsActiveClass = 'active'
     $scope.show_weekly_builds = true;
     $scope.show_builds = function() {
       $scope.show_weekly_builds = true;
@@ -16,7 +17,7 @@
     }
   });
 
-  app.controller('AuthController', function($scope, $http){
+  app.controller('AuthController', function($scope, $http, $interval){
     $scope.show_builds = false
     $scope.selected_build = false
     $scope.current_plan = ""
@@ -26,11 +27,15 @@
       }).error(function(data, status, headers, config) { });
 
     // получаем список добавленных планов
-    $http.get('/plans').success(function(data, status, headers, config) {
-        $scope.existingPlans = data;
-      }).error(function(data, status, headers, config) { }); 
+    function getPlans() {
+      $http.get('/auth').success(function(data, status, headers, config) {
+          $scope.existingPlans = data.plans.plan;
+        }).error(function(data, status, headers, config) { }); 
+    }
 
-    $scope.bambooAuth = function(user) {
+    getPlans()
+
+    $scope.bambooAuth = function() {
       $http.get('/auth').success(function(data, status, headers, config) {
         $scope.plans = data.plans.plan;
       }).error(function(data, status, headers, config) { }); 
@@ -41,16 +46,19 @@
                    key:  key }
       $http.post('/plans', data).success(function(data, status, headers, config) {
         $scope.result = data;
-      }).error(function(data, status, headers, config) { }); 
+      }).error(function(data, status, headers, config) { });
+      getPlans() 
     }
 
     $scope.bambooGetBuilds = function(key, name) {
       $scope.selected_build = false
+      $scope.show_placeholder = true
       $http.get('/plans/' + key + '/builds').success(function(data, status, headers, config) {
         $scope.builds = data.results.result;
         $scope.current_plan = name;
+        $scope.show_builds = true;
+        $scope.show_placeholder = false
       }).error(function(data, status, headers, config) { }); 
-      $scope.show_builds = true;
     }
     
     // страница загрузки выбранной сборки
@@ -62,16 +70,67 @@
       $scope.duration = build.buildDurationDescription;
       $scope.plan = build.planName;
       $scope.number = build.buildNumber;
+      $scope.total = 0;
+      $scope.downloaded = 0;
 
-      $scope.artifact = "test";
-      artifacts = build.artifacts.artifact;
-      for(i = 0; i < artifacts.length; ++i) {
-        if(artifacts[i].name == "installer")
-          $scope.artifact = artifacts[i];
+      $scope.artifacts = [];
+      a = build.artifacts.artifact;
+      for(i = 0; i < a.length; ++i) {
+        if(a[i].name.indexOf("installer") > -1 || a[i].name.indexOf("Installer") > -1)
+          $scope.artifacts.push(a[i].link.href);
       }
       //$http.post('/plans', data).success(function(data, status, headers, config) {
       //  $scope.result = data;
       //}).error(function(data, status, headers, config) { }); 
+    }
+    
+    //название кнопки
+    $scope.downloadButtonName = "Выложить сборку"
+    //управление доступностью контролов во время загрузки сборки
+    $scope.controlClass = '';
+    var downloadProgress;
+    // загрузка сборки
+    $scope.downloadBuild = function(link) {
+      var data = { "link": link}
+      $http.post('/download', data).success(function(data, status, headers, config) {
+        $scope.result = data;
+        //запускаем обновление загруженного количества байт
+        downloadProgress = $interval(getProgress, 1000);
+      }).error(function(data, status, headers, config) { }); 
+      $scope.downloadButtonName = "Сборка загружается"
+      $scope.controlClass = 'disabled';
+      $scope.showDownloadProgress = true;
+    }
+
+    // отмена загрузки
+    $scope.cancelDownload = function() {
+      $http.get('/download/cancel').success(function(data, status, headers, config) {
+          $scope.downloadButtonName = "Выложить сборку"
+          // останавливаем обновление
+          $interval.cancel(downloadProgress);
+      }).error(function(data, status, headers, config) { }); 
+      $scope.controlClass = '';
+      $scope.showDownloadProgress = false;
+    }
+
+    // получение прогресса загрузки
+    function getProgress() {
+      $http.get('/download/progress').success(function(data, status, headers, config) {
+        $scope.total = data.total;
+        $scope.downloaded = data.downloaded;
+
+        // прогресс бар
+        $('#dlProgress').progress({
+          percent: Math.floor($scope.downloaded * 100 / $scope.total)
+        });
+
+        if($scope.downloaded == $scope.total) {
+          $scope.downloadButtonName = "Выложить сборку"
+          $scope.controlClass = '';
+        } else {
+          $scope.controlClass = 'disabled';
+        }
+      }).error(function(data, status, headers, config) { }); 
     }
 
   });
