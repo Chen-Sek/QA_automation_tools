@@ -19,9 +19,10 @@
     </div>
 </div>
 <div class="ui divider"></div>
-<span ng-repeat = "a in artifacts">
+<div ng-repeat = "a in artifacts">
   <span class="ui purple button" ng-click = "downloadBuild(a)" ng-class = "controlClass">[[downloadButtonName + " " + a.split('/')[a.split('/').length-2] ]]</span>
-</span>
+  <a class="ui purple button" HREF = "[[a]]">Загрузить локально [[a.split('/')[a.split('/').length-2] ]]</a>
+</div>
   <span class="ui purple button" ng-click = "cancelDownload()" ng-show = "showDownloadProgress">Отмена</span>
 <div class="ui divider"></div>
 <div ng-show = "showDownloadProgress">
