@@ -13,8 +13,8 @@ username = appSettings['bamboo_token'].split(":")[0]
 password = appSettings['bamboo_token'].split(":")[1]
 
 # путь для загрузки
-# dlPath = "\\\\fs\\weekly\\test\\"
-dlPath = "temp\\"
+dlPath = "\\\\fs\\weekly\\test\\"
+# dlPath = "temp\\"
 
 # управляет загрузкой артефактов с bamboo на fs
 class Downloader:
