@@ -109,12 +109,12 @@
     // отмена загрузки
     $scope.cancelDownload = function() {
       $http.get('/download/cancel').success(function(data, status, headers, config) {
-          $scope.downloadButtonName = "Выложить сборку"
           // останавливаем обновление
           $interval.cancel(downloadProgress);
+          $scope.downloadButtonName = "Выложить сборку"
+          $scope.controlClass = 'enabled';
+          $scope.showDownloadProgress = false;
       }).error(function(data, status, headers, config) { }); 
-      $scope.controlClass = '';
-      $scope.showDownloadProgress = false;
     }
 
     // получение прогресса загрузки
@@ -128,11 +128,12 @@
           percent: Math.floor($scope.downloaded * 100 / $scope.total)
         });
 
-        if($scope.downloaded == $scope.total) {
+        if($scope.downloaded == $scope.total && $scope.showDownloadProgress == true) {
           $scope.downloadButtonName = "Выложить сборку"
-          $scope.controlClass = '';
+          $scope.controlClass = 'enabled';
+          $scope.showDownloadProgress = false;
         } else {
-          $scope.controlClass = 'disabled';
+          //$scope.controlClass = 'disabled';
         }
       }).error(function(data, status, headers, config) { }); 
     }
