@@ -13,7 +13,8 @@ username = appSettings['bamboo_token'].split(":")[0]
 password = appSettings['bamboo_token'].split(":")[1]
 
 # путь для загрузки
-dlPath = "\\\\fs\\weekly\\test\\"
+# dlPath = "\\\\fs\\weekly\\test\\"
+dlPath = "temp\\"
 
 # управляет загрузкой артефактов с bamboo на fs
 class Downloader:
@@ -88,7 +89,7 @@ class Downloader:
 				print("File length: " + str(self.total))
 				
 				with open(fullPath, 'wb') as f:
-					for chunk in r.iter_content(chunk_size=1024): 
+					for chunk in r.iter_content(chunk_size=4096): 
 						if chunk: # filter out keep-alive new chunks
 							f.write(chunk)
 							self.downloaded += len(chunk)
@@ -98,6 +99,7 @@ class Downloader:
 								self.downloaded = 0
 								try:
 									os.remove(fullPath)
+									os.rmdir(dlPath + dirname)
 								except:
 									pass
 								return False
@@ -109,11 +111,3 @@ class Downloader:
 			return True
 		else:
 			return False
-
-
-	def createDir(self):
-		name = "\\\\fs\\weekly\\test"
-		print(name)
-		if not os.path.exists(name):
-			os.makedirs(name)
-

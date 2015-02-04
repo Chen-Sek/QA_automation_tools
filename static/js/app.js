@@ -95,6 +95,8 @@
     var downloadProgress;
     // загрузка сборки
     $scope.downloadBuild = function(link) {
+      $scope.total = 0;
+      $scope.downloaded = 0;
       var data = { "link": link}
       $http.post('/download', data).success(function(data, status, headers, config) {
         $scope.result = data;
@@ -120,8 +122,8 @@
     // получение прогресса загрузки
     function getProgress() {
       $http.get('/download/progress').success(function(data, status, headers, config) {
-        $scope.total = data.total;
-        $scope.downloaded = data.downloaded;
+        $scope.total = Math.round(data.total / 1024 / 1024);
+        $scope.downloaded = Math.round(data.downloaded / 1024 / 1024);
 
         // прогресс бар
         $('#dlProgress').progress({
@@ -131,7 +133,7 @@
         if($scope.downloaded == $scope.total && $scope.showDownloadProgress == true) {
           $scope.downloadButtonName = "Выложить сборку"
           $scope.controlClass = 'enabled';
-          $scope.showDownloadProgress = false;
+          //$scope.showDownloadProgress = false;
         } else {
           //$scope.controlClass = 'disabled';
         }
