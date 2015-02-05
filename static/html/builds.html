@@ -10,7 +10,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr class="item" ng-repeat = "build in builds" ng-click = "selectBuild(build)">
+      <tr class="item" ng-repeat = "build in builds" ng-click = "selectBuild(build)" ng-class = 'buildsControlClass'>
         <td>[[build.buildNumber]]</td>
         <td>[[build.buildResultKey]]</td>
         <td ng-if = "build.buildState == 'Failed'" class = "negative">[[build.buildState]]</td>
@@ -20,4 +20,3 @@
     </tbody>
   </table>
 </div>
-

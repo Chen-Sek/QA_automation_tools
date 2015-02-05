@@ -21,47 +21,81 @@
     $scope.show_builds = false
     $scope.selected_build = false
     $scope.current_plan = ""
+
     //получаем параметры приложения
     $http.get('/settings').success(function(data, status, headers, config) {
         $scope.settings = data;
       }).error(function(data, status, headers, config) { });
 
-    // получаем список добавленных планов
-    function getPlans() {
-      $http.get('/auth').success(function(data, status, headers, config) {
-          $scope.existingPlans = data.plans.plan;
+    // получение списка добавленных планов
+    function getAddedPlans() {
+      $http.get('/plans').success(function(data, status, headers, config) {
+          $scope.existingPlans = data;
+          existingPlans = data;
         }).error(function(data, status, headers, config) { }); 
     }
 
-    getPlans()
-
-    $scope.bambooAuth = function() {
+    // получение планов с bamboo
+    bambooAuth = function() {
       $http.get('/auth').success(function(data, status, headers, config) {
-        $scope.plans = data.plans.plan;
+        $scope.bambooPlans = data.plans.plan;
       }).error(function(data, status, headers, config) { }); 
     }
+    bambooAuth()
     
-    $scope.bambooAddPlan = function(name, key) {
-      var data = { name: name, 
-                   key:  key }
+    // функция добавления плана в БД
+    $scope.bambooAddPlan = function(name, key, filters, page) {
+      var data = { name:    name, 
+                   key:     key,
+                   filters: filters ,
+                   page:    page }
       $http.post('/plans', data).success(function(data, status, headers, config) {
         $scope.result = data;
       }).error(function(data, status, headers, config) { });
-      getPlans() 
     }
-
+    
+    // выбор плана и получение сборок.
+    // если план не настроен (не добавлен в БД с нужными параметрами),
+    // то выбор сборок должен быть запрещен
+    // нужно показывать кнопку настройки (добавления в БД)
     $scope.bambooGetBuilds = function(key, name) {
+      // список добавленных планов
+      
+      $http.get('/plans').success(function(data, status, headers, config) {
+        $scope.existingPlans = data;
+        existingPlans = data;
+        for(var i = 0; i < existingPlans.length; ++i) {
+            $scope.buildsControlClass = 'disabled';
+          if(key == existingPlans[i].bamboo_plan) {
+            $scope.buildsControlClass = 'enabled';
+          }
+        }
+
+      }).error(function(data, status, headers, config) { }); 
+
+      // класс для отключения строк таблицы
+      $scope.buildsControlClass = 'disabled';
+      // пока данные не получены, список сборок не отображаем
       $scope.show_builds = false;
+      // скрыаваем страницу выбранной сборки
       $scope.selected_build = false
+      // отображаем заглушку
       $scope.show_placeholder = true
+      // разные постфиксы для разных планов
       postfix = ""
       if(key.indexOf("AN3") > -1)
         postfix = '-JOB1'
+
+      // запрашиваем список сборок с bamboo
       $http.get('/plans/' + key + postfix + '/builds').success(function(data, status, headers, config) {
+        // список сборок
         $scope.builds = data.results.result;
         $scope.current_plan = name;
+        // отображаем список
         $scope.show_builds = true;
+        // скрываем подложку
         $scope.show_placeholder = false
+
       }).error(function(data, status, headers, config) { }); 
     }
     
