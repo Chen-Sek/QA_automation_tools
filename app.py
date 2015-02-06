@@ -80,7 +80,7 @@ class Plans(Resource):
 			else:
 				return {"message": "Adding plan failed", "key": "-1"}
 		else:
-				return {"message": "Plan already exists", "key": args['bamboo_plan']}
+			return {"message": "Plan already exists", "key": args['bamboo_plan']}
 
 # получение списка последних 10 сборок
 class Builds(Resource):

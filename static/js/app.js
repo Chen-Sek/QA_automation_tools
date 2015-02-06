@@ -66,7 +66,7 @@
         // $scope.result.message - сообщение для пользателя
         // $scope.result.key - ключ добавленного плана
 
-        // обновляемсписок добавленных планов
+        // обновляем список добавленных планов
         getAddedPlans($scope.result.key);
       }).error(function(data, status, headers, config) { });
     }

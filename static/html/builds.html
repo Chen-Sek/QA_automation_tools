@@ -2,31 +2,43 @@
 <br>
   <h4 style = "margin-top: 5px">[[current_plan]]</h4> <button class="ui basic tiny button" ng-click = "showForm = true" ng-hide = "buildsControlClass == 'disabled'">Настройка параметров плана</button>
 
-  <div class="ui red message"ng-show = "buildsControlClass == 'disabled'" >Этот план не настроен. Перед тем как приступить к публикации сборки, настройте его с помощью формы ниже. Это нужно сделать один раз.</div>
+  <div class="ui red message" ng-show = "buildsControlClass == 'disabled'" >Этот план не настроен. Перед тем как приступить к публикации сборки, настройте его с помощью формы ниже. Это нужно сделать один раз.</div>
+  <div class="ui green message" ng-show = "result.message == 'Plan added'" >Параметры плана [[result.key]] сохранены</div>
+  <div class="ui red message" ng-show = "result.message == 'Adding plan failed'" >Не удалось сохранить параметры плана [[result.key]]</div>
 
   <div class="ui divider"></div>
 
   <div ng-show = "buildsControlClass == 'disabled' || showForm == true">
-      <div class="ui form">
+      <div class="ui attached message">
+        <div class="header">
+          Настройка билд-плана
+        </div>
+        <p>Укажите дату, когда была поубликована предыдущая сборка в формате YYYY-MM-DD. Эта дата необзадима для автоматического редактирования фильтров.</p>
+        <p>Укажите страницу в Confluence, на которой размещена информация о еженедельных сборках текущей версии.</p>
+        <p>Укажите идентификаторы фильтров "Известные проблемы" и "Проверено QA". Если их не указать, фильры не будут автоматически изменены. Идентификаторы можно узнать, открыв сохраненный фильтр:</p>
+        <img src="static/images/filter_id.png">
+        <p>P. S. Все параметры сохраняются на нашем сервере, на bamboo никаких изменений не происходит :)</p>
+      </div>
+      <div class="ui form attached fluid segment">
         <form name = "buildParameters">
           <div class="two fields">
             <div class="field">
               <label>Когда была выложена предыдущая сборка (YYYY-MM-DD)</label>
               <input value = "[[currentExistingPlan.prev_date]]" type="text" name = "planPrevDate" ng-model = "currentExistingPlan.prev_date"></input>
             </div>
-          </div>
-          <div class="field">
-            <label>Страница Confluence</label>
-            <input value = "[[currentExistingPlan.confluence_page]]" type="text" name = "planConfluencePage" ng-model = "currentExistingPlan.confluence_page"></input>
+            <div class="field">
+              <label>Страница Confluence</label>
+              <input value = "[[currentExistingPlan.confluence_page]]" type="text" name = "planConfluencePage" ng-model = "currentExistingPlan.confluence_page"></input>
+            </div>
           </div>
           <div class="two fields">
             <div class="field">
-              <label>Фильтр "Известные проблемы". Введите параметры в формате JQL</label>
-              <textarea value = "[[currentExistingPlan.jira_filter_issues]]" type="text" name = "planFilterIssues" ng-model = "currentExistingPlan.jira_filter_issues"></textarea>
+              <label>Фильтр "Известные проблемы".</label>
+              <input value = "[[currentExistingPlan.jira_filter_issues]]" type="text" name = "planFilterIssues" ng-model = "currentExistingPlan.jira_filter_issues"></input>
             </div>
             <div class="field">
-              <label>Фильтр "Проверено QA". Введите параметры в формате JQL</label>
-              <textarea value = "[[currentExistingPlan.jira_filter_checked]]" type="text" name = "planFilterChecked" ng-model = "currentExistingPlan.jira_filter_checked"></textarea>
+              <label>Фильтр "Проверено QA".</label>
+              <input value = "[[currentExistingPlan.jira_filter_checked]]" type="text" name = "planFilterChecked" ng-model = "currentExistingPlan.jira_filter_checked"></input>
             </div>
           </div>
                                 
