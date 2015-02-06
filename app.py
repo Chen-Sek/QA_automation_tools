@@ -14,10 +14,12 @@ api = Api(app, default_mediatype="application/json")
 
 # параметры нового плана
 plan_parser = reqparse.RequestParser()
-plan_parser.add_argument('name',     type=str)
-plan_parser.add_argument('key',      type=str)
-plan_parser.add_argument('filters',  type=str)
-plan_parser.add_argument('page',     type=str)
+plan_parser.add_argument('name',                type=str)
+plan_parser.add_argument('bamboo_plan',         type=str)
+plan_parser.add_argument('jira_filter_issues',  type=str)
+plan_parser.add_argument('jira_filter_checked', type=str)
+plan_parser.add_argument('prev_date',           type=str)
+plan_parser.add_argument('confluence_page',     type=str)
 
 # параметры для загрузки артефакта
 artifact_parser = reqparse.RequestParser()
@@ -42,8 +44,11 @@ class Settings(Resource):
 class BambooAuth(Resource):
 	def get(self):
 		#r = requests.get(appSettings['bamboo_url'] +'plan?os_authType=basic', auth=HTTPBasicAuth('roma,nbukharov', '21c0cd79Itv'))
-		r = requests.get(appSettings['bamboo_url'] + 'plan.json?os_authType=basic', auth=HTTPBasicAuth(username, password))
-		return r.json()
+		try:
+			r = requests.get(appSettings['bamboo_url'] + 'plan.json?os_authType=basic', auth=HTTPBasicAuth(username, password))
+			return r.json()
+		except:
+			return {}
 
 # управление планами
 class Plans(Resource):
@@ -54,15 +59,28 @@ class Plans(Resource):
 	# добавление нового плана
 	def post(self):
 		args = plan_parser.parse_args()
+		# DEBUG:
+		print("I've got parameters:")
 		print(args['name'])
-		print(args['key'])
-		if(not dataBase.getBuild(args['key'])):
-			if(dataBase.createBuild(args['name'], args['key'], 'test', 'test')):
-				return {"message": "Added"}
+		print(args['bamboo_plan'])
+		print(args['jira_filter_issues'])
+		print(args['jira_filter_checked'])
+		print("prev_date" + args['prev_date'])
+		print(args['confluence_page'])
+		print("_________________________")
+		
+		if(not dataBase.getBuild( args['bamboo_plan'] )):
+			if(dataBase.createBuild("Plan" + args['bamboo_plan'],
+									args['bamboo_plan'],
+									args['jira_filter_issues'],
+									args['jira_filter_checked'],
+									args['prev_date'],
+									args['confluence_page'])):
+				return {"message": "Plan added", "key": args['bamboo_plan']}
 			else:
-				return {"message": "Failed"}
+				return {"message": "Adding plan failed", "key": "-1"}
 		else:
-				return {"message": "Already exists"}
+				return {"message": "Plan already exists", "key": args['bamboo_plan']}
 
 # получение списка последних 10 сборок
 class Builds(Resource):

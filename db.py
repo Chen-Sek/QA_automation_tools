@@ -28,10 +28,12 @@ class MainSettings(Model):
 # таблица параметров раздела weekly builds
 class WeeklyBuilds(Model):
 	#owner      = ForeignKeyField(Monitor_type, related_name='monitors') # тип
-	name             = CharField(default = "") # название сборки
-	bamboo_plan      = CharField(default = "") # план build сервера
-	jira_filters     = CharField(default = "") # фильтры jira (в формате json)
-	confluence_page  = CharField(default = "") # страница confluence
+	name                = CharField(default = "") # название сборки
+	bamboo_plan         = CharField(default = "") # план build сервера (key)
+	jira_filter_issues  = CharField(default = "") # фильтр jira Известные проблемы
+	jira_filter_checked = CharField(default = "") # фильтр jira Проверено QA
+	prev_date           = CharField(default = "2015-01-22")
+	confluence_page     = CharField(default = "") # страница confluence
 	class Meta:
 		database = settings_db
 
@@ -85,36 +87,40 @@ class SettingsDB(object):
 		return settings
 
 	# новый план
-	def createBuild(self, name, plan, filters, page):
+	def createBuild(self, name, plan, filter_issues, filter_checked, prev_date, page):
 		if(name == None):
 			_name = "New build"
 		else:
 			_name = name
 		if(plan != None):
-			WeeklyBuilds.create(name            = _name,
-								bamboo_plan     = plan,
-								jira_filters    = filters,
-								confluence_page = page)
+			WeeklyBuilds.create(name                = _name,
+								bamboo_plan         = plan,
+								jira_filter_issues  = filter_issues,
+								jira_filter_checked = filter_checked,
+								prev_date           = prev_date,
+								confluence_page     = page)
 			print("Build " + _name + " has been created")
 			return True
 		else:
 			return False
 
 	# обновление плана
-	def updateBuild(self, id = None, name = None, plan = None, filters = None, page = None):
-		if(id != None):
+	def updateBuild(self, plan = None, name = None, filter_issues = None, filter_checked = None, prev_date = None, page = None):
+		if(plan != None):
 			try:
-				build = WeeklyBuilds.get(WeeklyBuilds.id == id)
+				build = WeeklyBuilds.get(WeeklyBuilds.bamboo_plan == plan)
 			except:
 				return False
 			if(name != None):
-				build.name = name
-			if(plan != None):
-				build.bamboo_plan = plan
-			if(filters != None):
-				build.jira_filters = filters
-			if(name != None):
-				build.confluence_page = page
+				build.name                = name
+			if(filter_issues != None):
+				build.jira_filter_issues  = filter_issues
+			if(filter_checked != None):
+				build.jira_filter_checked = filter_checked
+			if(prev_date != None):
+				build.prev_date           = prev_date
+			if(page != None):
+				build.confluence_page     = page
 			if(build.save()):
 				return True
 			else:
@@ -123,10 +129,10 @@ class SettingsDB(object):
 			return False
 
 	# удаление плана
-	def removeBuild(self, id):
-		if(id != None):
+	def removeBuild(self, plan):
+		if(plan != None):
 			try:
-				build = WeeklyBuilds.get(WeeklyBuilds.id == id)
+				build = WeeklyBuilds.get(WeeklyBuilds.bamboo_plan == plan)
 				build.delete_instance()
 				return True
 			except:
@@ -138,7 +144,7 @@ class SettingsDB(object):
 	def getBuilds(self):
 		builds = []
 		for b in WeeklyBuilds.select():
-			build = {'id': b.id, 'name': b.name, 'bamboo_plan': b.bamboo_plan, 'jira_filters': b.jira_filters, 'confluence_page': b.confluence_page}
+			build = {'name': b.name, 'bamboo_plan': b.bamboo_plan, 'jira_filter_issues': b.jira_filter_issues, 'jira_filter_checked': b.jira_filter_checked, 'prev_date': b.prev_date, 'confluence_page': b.confluence_page}
 			builds.append(build)
 		return builds
 
@@ -147,7 +153,7 @@ class SettingsDB(object):
 		build = {}
 		try:
 			b = WeeklyBuilds.get(WeeklyBuilds.bamboo_plan == key)
-			build = {'id': b.id, 'name': b.name, 'bamboo_plan': b.bamboo_plan, 'jira_filters': b.jira_filters, 'confluence_page': b.confluence_page}
+			build = {'name': b.name, 'bamboo_plan': b.bamboo_plan, 'jira_filter_issues': b.jira_filter_issues, 'jira_filter_checked': b.jira_filter_checked, 'prev_date': b.prev_date, 'confluence_page': b.confluence_page}
 		except:
 			pass
 		return build

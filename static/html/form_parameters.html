@@ -1,0 +1,30 @@
+<div class="ui form">
+  <form name = "buildParameters">
+    <div class="two fields">
+      <div class="field">
+        <label>Название</label>
+        <input value="[[current_plan]]" type="text" name = "planName" ng-model = "plan.name">
+      </div>
+      <div class="field">
+        <label>Когда была выложена предыдущая сборка (YYYY-MM-DD)</label>
+        <input value = "[[currentExistingPlan.prev_date]]" type="text" name = "planPrevDate" ng-model = "plan.prev_date">
+      </div>
+    </div>
+    <div class="field">
+      <label>Страница Confluence</label>
+      <input value = "[[currentExistingPlan.confluence_page]]" type="text" name = "planConfluencePage" ng-model = "plan.prev_date">
+    </div>
+    <div class="two fields">
+      <div class="field">
+        <label>Фильтр "Известные проблемы". Введите параметры в формате JQL</label>
+        <textarea value = "[[currentExistingPlan.jira_filter_issues]]" type="text" name = "planFilterIssues" ng-model = "plan.jira_filter_issues"></textarea>
+      </div>
+      <div class="field">
+        <label>Фильтр "Проверено QA". Введите параметры в формате JQL</label>
+        <textarea value = "[[currentExistingPlan.jira_filter_checked]]" type="text" name = "planFilterChecked" ng-model = "plan.jira_filter_checked"></textarea>
+      </div>
+    </div>
+                          
+    <div class="ui tiny purple submit button" ng-click = "bambooAddPlan(plan)">Сохранить</div>
+  </form>
+</div>
