@@ -55,6 +55,9 @@
     // plan - данные формы,
     // key - ключ (id) плана
     $scope.bambooAddPlan = function(plan, key) {
+      // показываем сообщения
+      $scope.showGreenMessage = true;
+
       var data = { bamboo_plan:         key,
                    jira_filter_issues:  plan.jira_filter_issues,
                    jira_filter_checked: plan.jira_filter_checked,
@@ -76,6 +79,11 @@
     // то выбор сборок должен быть запрещен
     // нужно показывать кнопку настройки (добавления в БД)
     $scope.bambooGetBuilds = function(key, name) {
+      // скрываем сообщения
+      $scope.showGreenMessage = false;
+      // скрываем форму
+      $scope.showForm = false;
+      // ключ плана
       $scope.currentKey = key;
       // пока данные не получены, список сборок не отображаем
       $scope.show_builds = false;

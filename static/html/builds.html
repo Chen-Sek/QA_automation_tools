@@ -2,13 +2,13 @@
 <br>
   <h4 style = "margin-top: 5px">[[current_plan]]</h4> <button class="ui basic tiny button" ng-click = "showForm = true" ng-hide = "buildsControlClass == 'disabled'">Настройка параметров плана</button>
 
-  <div class="ui red message" ng-show = "buildsControlClass == 'disabled'" >Этот план не настроен. Перед тем как приступить к публикации сборки, настройте его с помощью формы ниже. Это нужно сделать один раз.</div>
-  <div class="ui green message" ng-show = "result.message == 'Plan added'" >Параметры плана [[result.key]] сохранены</div>
-  <div class="ui red message" ng-show = "result.message == 'Adding plan failed'" >Не удалось сохранить параметры плана [[result.key]]</div>
+  <div class="ui small red message"   ng-show = "buildsControlClass == 'disabled'" >Этот план не настроен. Перед тем как приступить к публикации сборки, настройте его с помощью формы ниже. Это нужно сделать один раз.</div>
+  <div class="ui small green message" ng-show = "(result.message == 'Plan added' || result.message == 'Plan updated') && showGreenMessage" >Параметры плана [[result.key]] сохранены</div>
+  <div class="ui small red message"   ng-show = "(result.message == 'Adding plan failed') && showGreenMessage" >Не удалось сохранить параметры плана [[result.key]]</div>
 
   <div class="ui divider"></div>
 
-  <div ng-show = "buildsControlClass == 'disabled' || showForm == true">
+  <div ng-show = "buildsControlClass == 'disabled' || showForm">
       <div class="ui attached message">
         <div class="header">
           Настройка билд-плана
@@ -70,6 +70,6 @@
     </tbody>
   </table>
 </div>
-[[currentExistingPlan]]<br>
+<!-- [[currentExistingPlan]]<br>
 [[existingPlans]]<br>
-[[currentKey]]
+[[currentKey]] -->

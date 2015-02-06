@@ -69,9 +69,10 @@ class Plans(Resource):
 		print(args['confluence_page'])
 		print("_________________________")
 		
+		# если плана нет в БД, создаем его
 		if(not dataBase.getBuild( args['bamboo_plan'] )):
-			if(dataBase.createBuild("Plan" + args['bamboo_plan'],
-									args['bamboo_plan'],
+			if(dataBase.createBuild(args['bamboo_plan'],
+									"Plan" + args['bamboo_plan'],
 									args['jira_filter_issues'],
 									args['jira_filter_checked'],
 									args['prev_date'],
@@ -79,8 +80,16 @@ class Plans(Resource):
 				return {"message": "Plan added", "key": args['bamboo_plan']}
 			else:
 				return {"message": "Adding plan failed", "key": "-1"}
+		# если план существует, обновляем его параметры
 		else:
-			return {"message": "Plan already exists", "key": args['bamboo_plan']}
+			dataBase.updateBuild(args['bamboo_plan'],
+									"Plan" + args['bamboo_plan'],
+									args['jira_filter_issues'],
+									args['jira_filter_checked'],
+									args['prev_date'],
+									args['confluence_page'])
+
+			return {"message": "Plan updated", "key": args['bamboo_plan']}
 
 # получение списка последних 10 сборок
 class Builds(Resource):

@@ -32,7 +32,7 @@ class WeeklyBuilds(Model):
 	bamboo_plan         = CharField(default = "") # план build сервера (key)
 	jira_filter_issues  = CharField(default = "") # фильтр jira Известные проблемы
 	jira_filter_checked = CharField(default = "") # фильтр jira Проверено QA
-	prev_date           = CharField(default = "2015-01-22")
+	prev_date           = CharField(default = "2015-01-01")
 	confluence_page     = CharField(default = "") # страница confluence
 	class Meta:
 		database = settings_db
@@ -87,7 +87,7 @@ class SettingsDB(object):
 		return settings
 
 	# новый план
-	def createBuild(self, name, plan, filter_issues, filter_checked, prev_date, page):
+	def createBuild(self, plan, name, filter_issues, filter_checked, prev_date, page):
 		if(name == None):
 			_name = "New build"
 		else:
