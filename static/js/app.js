@@ -132,6 +132,8 @@
       $scope.beginDate = build.prettyBuildStartedTime;
       $scope.endDate = build.prettyBuildCompletedTime;
       $scope.duration = build.buildDurationDescription;
+      $scope.link = build.link.href.substring(0, 33) + 'browse/' +  build.buildResultKey;
+      $scope.timeAgo = build.buildRelativeTime;
       $scope.plan = build.planName;
       $scope.number = build.buildNumber;
       $scope.total = 0;

@@ -3,12 +3,12 @@
     <div class="ui three column grid">
       <div class="column">
         <div class="ui horizontal segment">
-          <p>Дата начала сборки: [[beginDate]]</p>
+          <p>Начало сборки: [[beginDate]]</p>
         </div>
       </div>
       <div class="column">
         <div class="ui horizontal segment">
-          <p>Дата окончания сборки: [[endDate]]</p>
+          <p>Окончание сборки: [[endDate]] ([[timeAgo]])</p>
         </div>
       </div>
       <div class="column">
@@ -17,14 +17,23 @@
         </div>
       </div>
     </div>
+    <div class="ui three column grid">
+      <div class="column">
+        <div class="ui horizontal segment">
+          <a href = "[[link]]">Ссылка на Bamboo</a>
+        </div>
+      </div>
+    </div>
 </div>
 <div class="ui divider"></div>
 <div ng-repeat = "a in artifacts">
-  <span class="ui purple button" ng-click = "downloadBuild(a)" ng-class = "controlClass">[[downloadButtonName + " " + a.split('/')[a.split('/').length-2] ]]</span>
-  <a class="ui purple button" HREF = "[[a]]">Загрузить локально [[a.split('/')[a.split('/').length-2] ]]</a>
+  <p><b>[[a.split('/')[a.split('/').length-2] ]]</b></p>
+  <span class="ui purple button" ng-click = "downloadBuild(a)" ng-class = "controlClass">[[downloadButtonName]]</span>
+  <a class="ui purple button" HREF = "[[a]]">Загрузить локально</a>
+  <div class="ui divider"></div>
 </div><br>
   <div class="ui purple button" ng-click = "cancelDownload()" ng-show = "showDownloadProgress">Отмена</div>
-<div class="ui divider"></div>
+  <br>[[currentExistingPlan]]
 <div ng-show = "showDownloadProgress">
   <div class="ui purple progress" data-percent="0" id="dlProgress">
     <div class="bar">
@@ -58,5 +67,5 @@
         </div>
       </div>
     </div>
-  </div><br>
+  </div>
 </div>
