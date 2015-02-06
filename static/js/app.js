@@ -139,6 +139,9 @@
       $scope.total = 0;
       $scope.downloaded = 0;
 
+      //скрываем сообщения
+      $scope.showGreenMessage = false;
+
       $scope.artifacts = [];
       a = build.artifacts.artifact;
       for(i = 0; i < a.length; ++i) {
@@ -204,8 +207,15 @@
 
     // обновление фильтров
     $scope.updateFilters = function(key) {
+      //скрываем сообщения
+      $scope.showGreenMessage = false;
+      // отключаем кнопку
+      $scope.controlFiltersButtonClass = 'disabled';
       $http.get('/plans/' + key + '/updatefilters').success(function(data, status, headers, config) {
-          alert("filters updated!");
+        $scope.controlFiltersButtonClass = 'enabled';
+        // отображаем сообщения
+        $scope.showGreenMessage = true;
+        $scope.result = data;
       }).error(function(data, status, headers, config) { }); 
     }
 

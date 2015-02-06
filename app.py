@@ -127,7 +127,7 @@ class UpdateFilters(Resource):
 		plan = dataBase.getBuild( key )
 		print("plan = " + plan['name'])
 		if(plan != None):
-			#try:
+			try:
 				# получение ID фильрров
 				jiraFilterIssuesID  = int(plan['jira_filter_issues'])
 				jiraFilterCheckedID = int(plan['jira_filter_checked'])
@@ -147,10 +147,11 @@ class UpdateFilters(Resource):
 
 				jiraExecutor.updateFilterJQL(jiraFilterIssuesID, jiraFilterIssuesNewJQL)
 				jiraExecutor.updateFilterJQL(jiraFilterCheckedID, jiraFilterCheckedNewJQL)
+				return {"message": "Filters updated"}
 
-			#except:
-			#	print("error")
-			#	return {"message": "fdailed"}
+			except:
+				print("error")
+				return {"message": "failed to update filters"}
 
 
 # routing
