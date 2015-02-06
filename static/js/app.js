@@ -202,6 +202,13 @@
       }).error(function(data, status, headers, config) { }); 
     }
 
+    // обновление фильтров
+    $scope.updateFilters = function(key) {
+      $http.get('/plans/' + key + '/updatefilters').success(function(data, status, headers, config) {
+          alert("filters updated!");
+      }).error(function(data, status, headers, config) { }); 
+    }
+
   });
 
 })();

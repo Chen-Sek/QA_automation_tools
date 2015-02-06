@@ -13,7 +13,7 @@ parameters = [   { 'name': 'bamboo_token',     'value': ' '},
 				 { 'name': 'jira_token',       'value': ' '},
 				 { 'name': 'confluence_token', 'value': ' '},
 				 { 'name': 'bamboo_url',       'value': 'https://build.itvgroup.ru/bamboo/rest/api/latest/'},   # url api build сервера
-				 { 'name': 'jira_url',         'value': 'https://support.axxonsoft.com/jira/rest/api/latest/'},   # url api jira
+				 { 'name': 'jira_url',         'value': 'https://support.axxonsoft.com/jira/'},   # url api jira
 				 { 'name': 'confluence_url',   'value': 'https://doc.axxonsoft.com/confluence/rest/api/latest/'}    # url api confluence
 				 ]
 #________________ схема данных ________________

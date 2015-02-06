@@ -4,7 +4,9 @@ import requests
 from requests.auth import HTTPBasicAuth
 from db import *
 from downloader import *
+from jiraFilters import *
 import json
+from datetime import datetime
 
 dataBase = SettingsDB()
 appSettings = dataBase.getMainSettings()
@@ -119,6 +121,38 @@ class CancelDownload(Resource):
 	def get(self):
 		return artifact.cancelDownload()
 
+class UpdateFilters(Resource):
+	def get(self, key):
+		print("key = " + key)
+		plan = dataBase.getBuild( key )
+		print("plan = " + plan['name'])
+		if(plan != None):
+			#try:
+				# получение ID фильрров
+				jiraFilterIssuesID  = int(plan['jira_filter_issues'])
+				jiraFilterCheckedID = int(plan['jira_filter_checked'])
+
+				jiraExecutor = JiraFilters()
+				# получение фильтров
+				jiraFilterIssues = jiraExecutor.getFilter(jiraFilterIssuesID)
+				jiraFilterChecked = jiraExecutor.getFilter(jiraFilterCheckedID)
+
+				# обновление параметров фильтров
+				# даты
+				prev_date = plan['prev_date']
+				curr_date = datetime.today().strftime("%Y-%m-%d")
+				# обновление JQL
+				jiraFilterIssuesNewJQL  = jiraExecutor.changeDateInJQL(jiraFilterIssues.jql, prev_date, curr_date)
+				jiraFilterCheckedNewJQL = jiraExecutor.changeDateInJQL(jiraFilterChecked.jql, prev_date, curr_date)
+
+				jiraExecutor.updateFilterJQL(jiraFilterIssuesID, jiraFilterIssuesNewJQL)
+				jiraExecutor.updateFilterJQL(jiraFilterCheckedID, jiraFilterCheckedNewJQL)
+
+			#except:
+			#	print("error")
+			#	return {"message": "fdailed"}
+
+
 # routing
 
 api.add_resource(Index,
@@ -144,6 +178,9 @@ api.add_resource(DownloadProgress,
 
 api.add_resource(CancelDownload,
 	'/download/cancel')
+
+api.add_resource(UpdateFilters,
+	'/plans/<string:key>/updatefilters')
 
 if __name__ == '__main__':
 

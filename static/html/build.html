@@ -34,6 +34,7 @@
 </div><br>
   <div class="ui purple button" ng-click = "cancelDownload()" ng-show = "showDownloadProgress">Отмена</div>
   <br>[[currentExistingPlan]]
+  <div class="ui purple button" ng-click = "updateFilters(currentExistingPlan.bamboo_plan)">Изменить фильтры</div>
 <div ng-show = "showDownloadProgress">
   <div class="ui purple progress" data-percent="0" id="dlProgress">
     <div class="bar">
