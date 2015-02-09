@@ -5,6 +5,7 @@ from requests.auth import HTTPBasicAuth
 from db import *
 from downloader import *
 from jiraFilters import *
+from confluencePages import *
 import json
 from datetime import datetime
 
@@ -26,6 +27,10 @@ plan_parser.add_argument('confluence_page',     type=str)
 # параметры для загрузки артефакта
 artifact_parser = reqparse.RequestParser()
 artifact_parser.add_argument('link', type=str)
+
+# параметры для обновления страниц
+page_parser = reqparse.RequestParser()
+page_parser.add_argument('filename',            type=str)
 
 username = appSettings['bamboo_token'].split(":")[0]
 password = appSettings['bamboo_token'].split(":")[1]
@@ -116,6 +121,11 @@ class DownloadProgress(Resource):
 	def get(self):
 		return artifact.getProgress()
 
+# получение имени файла
+class getFilename(Resource):
+	def get(self):
+		return artifact.getFilename()
+
 # остановка процесса загрузки
 class CancelDownload(Resource):
 	def get(self):
@@ -124,7 +134,6 @@ class CancelDownload(Resource):
 # обнуление счетчиков
 class clearCounters(Resource):
 	def get(self):
-		print("ok!!!")
 		return artifact.clear()
 
 class UpdateFilters(Resource):
@@ -134,12 +143,12 @@ class UpdateFilters(Resource):
 		print("plan = " + plan['name'])
 		if(plan != None):
 			try:
-				# получение ID фильрров
+				# получение ID фильтров
 				jiraFilterIssuesID  = int(plan['jira_filter_issues'])
 				jiraFilterCheckedID = int(plan['jira_filter_checked'])
 			except:
 				print("error")
-				return {"message": "Невозможно получить параметры фильтров из БД, либо ID фильтра не является числом"}
+				return {"result": "error", "message": "Невозможно получить параметры фильтров из БД, либо ID фильтра не является числом"}
 			try:
 				jiraExecutor = JiraFilters()
 				# получение фильтров
@@ -157,11 +166,50 @@ class UpdateFilters(Resource):
 				jiraExecutor.updateFilterJQL(jiraFilterCheckedID, jiraFilterCheckedNewJQL)
 				if(dataBase.updateBuild(plan = key, prev_date = curr_date)):
 					print("Date updated!")
-				return {"message": "Filters updated"}
+				return {"result": "done", "message": "Filters updated"}
 			except:
 				print("error")
-				return {"message": "Ошибка при обращении к Jira API. Возможно, Jira не работает, либо ID фильтра задан некорректно"}
+				return {"result": "error", "message": "Ошибка при обращении к Jira API. Возможно, Jira не работает, либо ID фильтра задан некорректно"}
+		else:
+			return {"result": "error", "message": "Ошибка при обращении к БД"}
 
+class UpdatePages(Resource):
+	def post(self, key):
+		pageArgs = page_parser.parse_args()
+		print("key = " + key)
+		print("filename = " + pageArgs['filename'])
+
+		plan = dataBase.getBuild( key )
+		print("plan = " + plan['name'])
+		pagesIDs = []
+		if(plan != None):
+			try:
+				# получение ID страниц
+				pagesIDs  = str(plan['confluence_page']).split(",")
+			except:
+				print("error")
+				return {"result": "error", "message": "Невозможно получить параметры страниц из БД, либо параметры указаны некорректно"}
+			confluenceExecutor = Confluence()
+			for pageID in pagesIDs:
+				try:
+					# получение страницы
+					pageBody = confluenceExecutor.getPageBody(pageID)
+				except:
+					print("error")
+					return {"result": "error", "message": "Ошибка при обращении к Confluence API. Невозможно получить страницу"}
+				# обновление содержимого
+				pageNewBody  = confluenceExecutor.changeTextInBody(pageBody['body'], pageArgs['filename'])
+				try:
+	
+					confluenceExecutor.updatePageBody(pageID, pageNewBody, pageBody['version'], pageBody['name'], pageBody['ancestors'])
+				except:
+					print("error")
+					return {"result": "error", "message": "Ошибка при обращении к Confluence API. Невозможно обновить страницу"}
+
+				return {"result": "done", "message": "Page updated"}
+		else:
+			return {"result": "error", "message": "Ошибка при обращении к БД"}
+	
 
 # routing
 
@@ -191,9 +239,14 @@ api.add_resource(CancelDownload,
 
 api.add_resource(clearCounters,
 	'/download/clear')
+api.add_resource(getFilename,
+	'/download/filename')
 
 api.add_resource(UpdateFilters,
 	'/plans/<string:key>/updatefilters')
+
+api.add_resource(UpdatePages,
+	'/plans/<string:key>/updatepages')
 
 if __name__ == '__main__':
 

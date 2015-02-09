@@ -28,24 +28,35 @@ class Downloader:
 	downloaded = 0
 	# размер файла
 	total = 0
+	# путь к файлу
+	fullPath = ""
 
 	def getProgress(self):
 		return { "downloaded": self.downloaded, "total": self.total }
 
+	def getFilename(self):
+		return self.fullPath.split('\\')[-1]
+
 	def cancelDownload(self):
-		# установка события завершения потока
-		self.t_stop.set()
-		# когда поток остановился, сбрасываем событие и меняем состояние монитора
-		self.thread.join()
-		self.t_stop.clear()
-		self.downloaded = 0;
-		self.total = 0;
-		return { "message": "Download canceled" }
+		if(self.thread != None):
+			# установка события завершения потока
+			self.t_stop.set()
+			# когда поток остановился, сбрасываем событие и меняем состояние монитора
+			self.thread.join()
+			self.t_stop.clear()
+			self.downloaded = 0;
+			self.total = 0;
+			self.fullPath = ""
+			return { "message": "Download canceled" }
+		else:
+			return { "message": "Nothing to cancel" }
+
 
 	# сброк счетчиков
 	def clear(self):
 		self.downloaded = 0;
 		self.total = 0;
+		self.fullPath = ""
 		return { "message": "counters cleared" }
 
 	# при загрузе артефакта AN сначала нужно распарсить страницу, получаемую
@@ -85,22 +96,22 @@ class Downloader:
 			# функция потока загрузки
 			def download(_fullLink, stop_event):
 				filename = _fullLink.split('/')[-1]
-				dirname  = filename.split('/')[-1][ : len(filename) - 9]
+				#dirname  = filename.split('/')[-1][ : len(filename) - 9]
 
-				if not os.path.exists(dlPath + dirname):
+				if not os.path.exists(dlPath):
 					try:
-						os.makedirs(dlPath + dirname)
+						os.makedirs(dlPath)
 					except:
 						return False
 
-				fullPath = dlPath + dirname + "\\" + filename
+				self.fullPath = dlPath + "\\" + filename
 				r = requests.get(_fullLink, auth=HTTPBasicAuth(username, password), stream=True)
 				
 				self.total = int(r.headers.get('content-length'))
 				
 				print("File length: " + str(self.total))
 				
-				with open(fullPath, 'wb') as f:
+				with open(self.fullPath, 'wb') as f:
 					for chunk in r.iter_content(chunk_size=4096): 
 						if chunk: # filter out keep-alive new chunks
 							f.write(chunk)
@@ -110,12 +121,11 @@ class Downloader:
 								f.close()
 								self.downloaded = 0
 								try:
-									os.remove(fullPath)
-									os.rmdir(dlPath + dirname)
+									os.remove(self.fullPath)
 								except:
 									pass
 								return False
-				return fullPath
+				return self.fullPath
 			
 			# создание и запуск потока
 			self.thread = Thread( target = download, args = (fullLink, self.t_stop, ) )

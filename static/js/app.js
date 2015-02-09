@@ -139,9 +139,13 @@
       $scope.number = build.buildNumber;
       $scope.total = 0;
       $scope.downloaded = 0;
+      // отключаем кнопки изменения jira и confluence, пока сборка не загрузится
+      $scope.controlPagesButtonClass = 'disabled'
+      $scope.controlFiltersButtonClass = 'disabled'
 
       //скрываем сообщения
-      $scope.showGreenMessage = false;
+      $scope.showFiltersMessage = false;
+      $scope.showPageMessage = false;
 
       $scope.artifacts = [];
       a = build.artifacts.artifact;
@@ -162,6 +166,10 @@
 
     // загрузка сборки
     $scope.downloadBuild = function(link) {
+      $http.get('/download/cancel').success(function(data, status, headers, config) {
+
+      }).error(function(data, status, headers, config) { });
+
       // сброс счетчиков прогресс бара
       $http.get('/download/clear').success(function(data, status, headers, config) {
 
@@ -173,6 +181,7 @@
         //запускаем обновление загруженного количества байт
         downloadProgress = $interval(getProgress, 1000);
       }).error(function(data, status, headers, config) { }); 
+
       $scope.downloadButtonName = "Сборка загружается"
       $scope.controlClass = 'disabled';
       $scope.showDownloadProgress = true;
@@ -190,6 +199,8 @@
           $interval.cancel(downloadProgress);
           $scope.downloadButtonName = "Выложить сборку"
           $scope.controlClass = 'enabled';
+          $scope.controlPagesButtonClass = 'disabled'
+          $scope.controlFiltersButtonClass = 'disabled'
           $scope.showDownloadProgress = false;
       }).error(function(data, status, headers, config) { }); 
     }
@@ -208,7 +219,13 @@
         if($scope.downloaded == $scope.total && $scope.showDownloadProgress == true) {
           $scope.downloadButtonName = "Выложить сборку"
           $scope.controlClass = 'enabled';
+          $scope.controlPagesButtonClass = 'enabled'
+          $scope.controlFiltersButtonClass = 'enabled'
           $interval.cancel(downloadProgress);
+          // получение имени загруженного файла
+          $http.get('/download/filename').success(function(data, status, headers, config) {
+            $scope.filename = data;
+          }).error(function(data, status, headers, config) { }); 
         } else {
           //$scope.controlClass = 'disabled';
         }
@@ -218,13 +235,28 @@
     // обновление фильтров
     $scope.updateFilters = function(key) {
       //скрываем сообщения
-      $scope.showGreenMessage = false;
+      $scope.showFiltersMessage = false;
       // отключаем кнопку
       $scope.controlFiltersButtonClass = 'disabled';
       $http.get('/plans/' + key + '/updatefilters').success(function(data, status, headers, config) {
         $scope.controlFiltersButtonClass = 'enabled';
         // отображаем сообщения
-        $scope.showGreenMessage = true;
+        $scope.showFiltersMessage = true;
+        $scope.result = data;
+      }).error(function(data, status, headers, config) { }); 
+    }
+
+    // обновление страниц
+    $scope.updatePages = function(key, filename) {
+      //скрываем сообщения
+      $scope.showPageMessage = false;
+      // отключаем кнопку
+      var data = { filename: filename}
+      $scope.controlPagesButtonClass = 'disabled';
+      $http.post('/plans/' + key + '/updatepages', data).success(function(data, status, headers, config) {
+        $scope.controlPagesButtonClass = 'enabled';
+        // отображаем сообщения
+        $scope.showPageMessage = true;
         $scope.result = data;
       }).error(function(data, status, headers, config) { }); 
     }

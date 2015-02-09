@@ -40,7 +40,8 @@
     <div class="bar">
       <div class="progress"></div>
     </div>
-    <div class="label">Загрузка сборки...</div>
+    <div class="label" ng-if = "filename == null">Загрузка сборки...</div>
+    <div class="label" ng-if = "filename != null">[[filename]]</div>
   </div>
 
   <div class="ui two column grid">
@@ -72,7 +73,10 @@
   <br><div class="ui tiny purple button" ng-click = "cancelDownload()" ng-show = "showDownloadProgress">Отменить загрузку</div>
 </div>
   <div class="ui divider"></div>
+  <div class="ui small yellow message"ng-hide = "" >Фильтры в Jira и страницы в Confluence можно обновить только после окончания загрузки сборки</div>
   <span class="ui tiny purple button" ng-click = "updateFilters(currentExistingPlan.bamboo_plan)" ng-class = "controlFiltersButtonClass">Обновить фильтры в Jira</span>
-  <div class="ui small green message" ng-show = "(result.message == 'Filters updated') && showGreenMessage" >Фильтры успешно обновлены</div>
-  <div class="ui small red message"   ng-show = "(result.message != 'Filters updated') && showGreenMessage" >При обновлении фильтров возникла ошибка: [[result.message]]</div>
-  <div class="ui divider"></div>
+  <span class="ui tiny purple button" ng-click = "updatePages(currentExistingPlan.bamboo_plan, filename)" ng-class = "controlPagesButtonClass">Обновить страницы в Confluence</span>
+  <div class="ui small green message" ng-show = "(result.result == 'done' ) && showFiltersMessage" >Фильтры успешно обновлены</div>
+  <div class="ui small red message"   ng-show = "(result.result == 'error') && showFiltersMessage" >При обновлении фильтров возникла ошибка: [[result.message]]</div>
+  <div class="ui small green message" ng-show = "(result.result == 'done' ) && showPageMessage" >Страницы успешно обновлены</div>
+  <div class="ui small red message"   ng-show = "(result.result == 'error') && showPageMessage" >При обновлении страниц возникла ошибка: [[result.message]]</div>
