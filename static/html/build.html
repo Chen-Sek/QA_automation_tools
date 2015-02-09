@@ -33,7 +33,6 @@
   <span class="ui tiny purple button" ng-click = "downloadBuild(a)" ng-class = "controlClass">[[downloadButtonName]]</span>
   <a class="ui tiny purple button" HREF = "[[a]]">Загрузить локально</a>
 </div>
-<div class="ui divider"></div>
 <br>
   <!-- <br>[[currentExistingPlan]] -->
 <div ng-show = "showDownloadProgress">
@@ -75,5 +74,5 @@
   <div class="ui divider"></div>
   <span class="ui tiny purple button" ng-click = "updateFilters(currentExistingPlan.bamboo_plan)" ng-class = "controlFiltersButtonClass">Обновить фильтры в Jira</span>
   <div class="ui small green message" ng-show = "(result.message == 'Filters updated') && showGreenMessage" >Фильтры успешно обновлены</div>
-  <div class="ui small red message"   ng-show = "(result.message == 'failed to update filters') && showGreenMessage" >При обновлении фильтров возникла ошибка</div>
+  <div class="ui small red message"   ng-show = "(result.message != 'Filters updated') && showGreenMessage" >При обновлении фильтров возникла ошибка: [[result.message]]</div>
   <div class="ui divider"></div>

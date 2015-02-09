@@ -110,6 +110,7 @@ class SettingsDB(object):
 			try:
 				build = WeeklyBuilds.get(WeeklyBuilds.bamboo_plan == plan)
 			except:
+				print("DB error")
 				return False
 			if(name != None):
 				build.name                = name
@@ -124,8 +125,10 @@ class SettingsDB(object):
 			if(build.save()):
 				return True
 			else:
+				print("Save error")
 				return False
 		else:
+			print("Plan = None")
 			return False
 
 	# удаление плана

@@ -137,12 +137,14 @@ class UpdateFilters(Resource):
 				# получение ID фильрров
 				jiraFilterIssuesID  = int(plan['jira_filter_issues'])
 				jiraFilterCheckedID = int(plan['jira_filter_checked'])
-
+			except:
+				print("error")
+				return {"message": "Невозможно получить параметры фильтров из БД, либо ID фильтра не является числом"}
+			try:
 				jiraExecutor = JiraFilters()
 				# получение фильтров
 				jiraFilterIssues = jiraExecutor.getFilter(jiraFilterIssuesID)
 				jiraFilterChecked = jiraExecutor.getFilter(jiraFilterCheckedID)
-
 				# обновление параметров фильтров
 				# даты
 				prev_date = plan['prev_date']
@@ -153,11 +155,12 @@ class UpdateFilters(Resource):
 
 				jiraExecutor.updateFilterJQL(jiraFilterIssuesID, jiraFilterIssuesNewJQL)
 				jiraExecutor.updateFilterJQL(jiraFilterCheckedID, jiraFilterCheckedNewJQL)
+				if(dataBase.updateBuild(plan = key, prev_date = curr_date)):
+					print("Date updated!")
 				return {"message": "Filters updated"}
-
 			except:
 				print("error")
-				return {"message": "failed to update filters"}
+				return {"message": "Ошибка при обращении к Jira API. Возможно, Jira не работает, либо ID фильтра задан некорректно"}
 
 
 # routing
