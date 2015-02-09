@@ -14,8 +14,9 @@
         <div class="header">
           Настройка билд-плана
         </div>
-        <p>Укажите дату, когда была поубликована предыдущая сборка в формате YYYY-MM-DD. Эта дата необходима для автоматического редактирования фильтров.</p>
-        <p>Укажите страницу в Confluence, на которой размещена информация о еженедельных сборках текущей версии.</p>
+        <p>Укажите дату, когда была поубликована последняя сборка в формате YYYY-MM-DD. Эта дата необходима для автоматического редактирования фильтров.</p>
+        <p>Укажите идентификаторы страниц в Confluence, на которых размещена информация о еженедельных сборках текущей версии (через запятую без пробелов). Идентификаторы можно узнать, открыв страницу для редактирования:</p>
+        <img src="static/images/page_id.png">
         <p>Укажите идентификаторы фильтров "Известные проблемы" и "Проверено QA". Если их не указать, фильтры не будут автоматически изменены. Идентификаторы можно узнать, открыв сохраненный фильтр:</p>
         <img src="static/images/filter_id.png">
         <p>P. S. Все параметры сохраняются на нашем сервере, на bamboo никаких изменений не происходит.</p>
@@ -24,11 +25,11 @@
         <form name = "buildParameters">
           <div class="two fields">
             <div class="field">
-              <label>Когда была выложена предыдущая сборка (YYYY-MM-DD)</label>
+              <label>Когда была выложена последняя сборка (YYYY-MM-DD)</label>
               <input value = "[[currentExistingPlan.prev_date]]" type="text" name = "planPrevDate" ng-model = "currentExistingPlan.prev_date"></input>
             </div>
             <div class="field">
-              <label>Страница Confluence</label>
+              <label>Страницы Confluence</label>
               <input value = "[[currentExistingPlan.confluence_page]]" type="text" name = "planConfluencePage" ng-model = "currentExistingPlan.confluence_page"></input>
             </div>
           </div>
