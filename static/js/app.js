@@ -179,7 +179,8 @@
     }
 
     $scope.backToBuildsList = function() {
-
+      $scope.show_builds = true;
+      $scope.selected_build = false;
     }
 
     // отмена загрузки

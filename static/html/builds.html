@@ -1,6 +1,7 @@
 <div ng-show = "show_builds">
 <br>
-  <h4 style = "margin-top: 5px">[[current_plan]]</h4> <button class="ui basic tiny button" ng-click = "showForm = true" ng-hide = "buildsControlClass == 'disabled'">Настройка параметров плана</button>
+  <h4 style = "margin-top: 5px">[[current_plan]]</h4>
+  <button class="ui basic tiny button" ng-click = "showForm = true" ng-hide = "buildsControlClass == 'disabled'"><i class="settings icon"></i>Настройка параметров плана</button>
 
   <div class="ui small red message"   ng-show = "buildsControlClass == 'disabled'" >Этот план не настроен. Перед тем как приступить к публикации сборки, настройте его с помощью формы ниже. Это нужно сделать один раз.</div>
   <div class="ui small green message" ng-show = "(result.message == 'Plan added' || result.message == 'Plan updated') && showGreenMessage" >Параметры плана [[result.key]] сохранены</div>
