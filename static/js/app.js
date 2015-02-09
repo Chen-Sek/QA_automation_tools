@@ -128,6 +128,7 @@
     // страница загрузки выбранной сборки
     $scope.selectBuild = function(build) {
       $scope.show_builds = false;
+      $scope.showDownloadProgress = false;
       $scope.selected_build = true;
       $scope.beginDate = build.prettyBuildStartedTime;
       $scope.endDate = build.prettyBuildCompletedTime;
@@ -158,10 +159,14 @@
     //управление доступностью контролов во время загрузки сборки
     $scope.controlClass = '';
     var downloadProgress;
+
     // загрузка сборки
     $scope.downloadBuild = function(link) {
-      $scope.total = 0;
-      $scope.downloaded = 0;
+      // сброс счетчиков прогресс бара
+      $http.get('/download/clear').success(function(data, status, headers, config) {
+
+      }).error(function(data, status, headers, config) { }); 
+
       var data = { "link": link}
       $http.post('/download', data).success(function(data, status, headers, config) {
         $scope.result = data;
@@ -171,6 +176,10 @@
       $scope.downloadButtonName = "Сборка загружается"
       $scope.controlClass = 'disabled';
       $scope.showDownloadProgress = true;
+    }
+
+    $scope.backToBuildsList = function() {
+
     }
 
     // отмена загрузки
@@ -198,7 +207,7 @@
         if($scope.downloaded == $scope.total && $scope.showDownloadProgress == true) {
           $scope.downloadButtonName = "Выложить сборку"
           $scope.controlClass = 'enabled';
-          //$scope.showDownloadProgress = false;
+          $interval.cancel(downloadProgress);
         } else {
           //$scope.controlClass = 'disabled';
         }

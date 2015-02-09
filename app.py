@@ -121,6 +121,12 @@ class CancelDownload(Resource):
 	def get(self):
 		return artifact.cancelDownload()
 
+# обнуление счетчиков
+class clearCounters(Resource):
+	def get(self):
+		print("ok!!!")
+		return artifact.clear()
+
 class UpdateFilters(Resource):
 	def get(self, key):
 		print("key = " + key)
@@ -179,6 +185,9 @@ api.add_resource(DownloadProgress,
 
 api.add_resource(CancelDownload,
 	'/download/cancel')
+
+api.add_resource(clearCounters,
+	'/download/clear')
 
 api.add_resource(UpdateFilters,
 	'/plans/<string:key>/updatefilters')

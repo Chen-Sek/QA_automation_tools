@@ -15,6 +15,7 @@ password = appSettings['bamboo_token'].split(":")[1]
 # путь для загрузки
 # dlPath = "\\\\fs\\weekly\\test\\"
 dlPath = "temp\\"
+# dlPath = "\\\\A-VASILIEV\\downloads\\temp\\"
 
 # управляет загрузкой артефактов с bamboo на fs
 class Downloader:
@@ -37,7 +38,15 @@ class Downloader:
 		# когда поток остановился, сбрасываем событие и меняем состояние монитора
 		self.thread.join()
 		self.t_stop.clear()
+		self.downloaded = 0;
+		self.total = 0;
 		return { "message": "Download canceled" }
+
+	# сброк счетчиков
+	def clear(self):
+		self.downloaded = 0;
+		self.total = 0;
+		return { "message": "counters cleared" }
 
 	# при загрузе артефакта AN сначала нужно распарсить страницу, получаемую
 	# по адресу типа https://build.itvgroup.ru/bamboo/browse/ASIP-AN362-186/artifact/JOB1/installer/
@@ -79,7 +88,10 @@ class Downloader:
 				dirname  = filename.split('/')[-1][ : len(filename) - 9]
 
 				if not os.path.exists(dlPath + dirname):
-					os.makedirs(dlPath + dirname)
+					try:
+						os.makedirs(dlPath + dirname)
+					except:
+						return False
 
 				fullPath = dlPath + dirname + "\\" + filename
 				r = requests.get(_fullLink, auth=HTTPBasicAuth(username, password), stream=True)
