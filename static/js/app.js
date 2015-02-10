@@ -124,9 +124,29 @@
 
       }).error(function(data, status, headers, config) { }); 
     }
-    
+
+    var _currentState;
+
+    function getState() {
+      // проверка, запущена ли другая публикация
+      $http.get('/download/state').success(function(data, status, headers, config) {
+        $scope.currentState = data;
+        if($scope.currentState.result == "busy") {
+          $scope.controlClass = 'disabled';
+          console.log($scope.currentState.message)
+        }
+        else {
+          $interval.cancel(_currentState);
+          $scope.controlClass = 'enabled';
+          console.log($scope.currentState.message);
+        }
+      }).error(function(data, status, headers, config) { });
+    }
+
     // страница загрузки выбранной сборки
     $scope.selectBuild = function(build) {
+      _currentState = $interval(getState, 1000);
+
       $scope.show_builds = false;
       $scope.showDownloadProgress = false;
       $scope.selected_build = true;
@@ -140,8 +160,8 @@
       $scope.total = 0;
       $scope.downloaded = 0;
       // отключаем кнопки изменения jira и confluence, пока сборка не загрузится
-      $scope.controlPagesButtonClass = 'disabled'
-      $scope.controlFiltersButtonClass = 'disabled'
+      $scope.controlPagesButtonClass = 'displaynone'
+      $scope.controlFiltersButtonClass = 'displaynone'
 
       //скрываем сообщения
       $scope.showFiltersMessage = false;
@@ -163,33 +183,49 @@
     //управление доступностью контролов во время загрузки сборки
     $scope.controlClass = '';
     var downloadProgress;
+    var downloadCurrentState;
 
     // загрузка сборки
     $scope.downloadBuild = function(link) {
-      $http.get('/download/cancel').success(function(data, status, headers, config) {
-
+      
+      $http.get('/download/state').success(function(data, status, headers, config) {
+        $scope.currentState = data;
+        if($scope.currentState.result == "busy") {
+          $scope.controlClass = 'disabled';
+          console.log("publication is in progress!");
+          //downloadCurrentState = $interval(getState, 1000);
+        }
+        else {
+          console.log("Ready to go!");
+          $http.get('/download/cancel').success(function(data, status, headers, config) {
+    
+          }).error(function(data, status, headers, config) { });
+    
+          // сброс счетчиков прогресс бара
+          $http.get('/download/clear').success(function(data, status, headers, config) {
+    
+          }).error(function(data, status, headers, config) { }); 
+    
+          var data = { "link": link}
+          $http.post('/download', data).success(function(data, status, headers, config) {
+            $scope.result = data;
+            //запускаем обновление загруженного количества байт
+            downloadProgress = $interval(getProgress, 1000);
+          }).error(function(data, status, headers, config) { }); 
+    
+          $scope.downloadButtonName = "Сборка загружается"
+          $scope.controlClass = 'disabled';
+          $scope.showDownloadProgress = true;
+        }
       }).error(function(data, status, headers, config) { });
+      
 
-      // сброс счетчиков прогресс бара
-      $http.get('/download/clear').success(function(data, status, headers, config) {
-
-      }).error(function(data, status, headers, config) { }); 
-
-      var data = { "link": link}
-      $http.post('/download', data).success(function(data, status, headers, config) {
-        $scope.result = data;
-        //запускаем обновление загруженного количества байт
-        downloadProgress = $interval(getProgress, 1000);
-      }).error(function(data, status, headers, config) { }); 
-
-      $scope.downloadButtonName = "Сборка загружается"
-      $scope.controlClass = 'disabled';
-      $scope.showDownloadProgress = true;
     }
 
     $scope.backToBuildsList = function() {
       $scope.show_builds = true;
       $scope.selected_build = false;
+      $interval.cancel(downloadCurrentState);
     }
 
     // отмена загрузки
@@ -199,8 +235,8 @@
           $interval.cancel(downloadProgress);
           $scope.downloadButtonName = "Выложить сборку"
           $scope.controlClass = 'enabled';
-          $scope.controlPagesButtonClass = 'disabled'
-          $scope.controlFiltersButtonClass = 'disabled'
+          $scope.controlPagesButtonClass = 'displaynone'
+          $scope.controlFiltersButtonClass = 'displaynone'
           $scope.showDownloadProgress = false;
       }).error(function(data, status, headers, config) { }); 
     }
@@ -215,16 +251,21 @@
         $('#dlProgress').progress({
           percent: Math.floor($scope.downloaded * 100 / $scope.total)
         });
-
+        // если загрузка завершена
         if($scope.downloaded == $scope.total && $scope.showDownloadProgress == true) {
+          //$interval.cancel(downloadCurrentState);
           $scope.downloadButtonName = "Выложить сборку"
           $scope.controlClass = 'enabled';
-          $scope.controlPagesButtonClass = 'enabled'
-          $scope.controlFiltersButtonClass = 'enabled'
+          $scope.controlPagesButtonClass = ''
+          $scope.controlFiltersButtonClass = ''
           $interval.cancel(downloadProgress);
           // получение имени загруженного файла
           $http.get('/download/filename').success(function(data, status, headers, config) {
             $scope.filename = data;
+            $scope.updateFilters($scope.currentExistingPlan.bamboo_plan)
+            $scope.updatePages($scope.currentExistingPlan.bamboo_plan, $scope.filename)
+            // сброс счетчиков прогресс бара
+            $http.get('/download/clear').success(function(data, status, headers, config) {}).error(function(data, status, headers, config) { }); 
           }).error(function(data, status, headers, config) { }); 
         } else {
           //$scope.controlClass = 'disabled';
@@ -237,9 +278,9 @@
       //скрываем сообщения
       $scope.showFiltersMessage = false;
       // отключаем кнопку
-      $scope.controlFiltersButtonClass = 'disabled';
+      $scope.controlFiltersButtonClass = 'displaynone';
       $http.get('/plans/' + key + '/updatefilters').success(function(data, status, headers, config) {
-        $scope.controlFiltersButtonClass = 'enabled';
+        $scope.controlFiltersButtonClass = '';
         // отображаем сообщения
         $scope.showFiltersMessage = true;
         $scope.result = data;
@@ -252,9 +293,9 @@
       $scope.showPageMessage = false;
       // отключаем кнопку
       var data = { filename: filename}
-      $scope.controlPagesButtonClass = 'disabled';
+      $scope.controlPagesButtonClass = 'displaynone';
       $http.post('/plans/' + key + '/updatepages', data).success(function(data, status, headers, config) {
-        $scope.controlPagesButtonClass = 'enabled';
+        $scope.controlPagesButtonClass = '';
         // отображаем сообщения
         $scope.showPageMessage = true;
         $scope.result = data;

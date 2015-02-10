@@ -107,14 +107,17 @@ class Builds(Resource):
 # загрузка артефакта
 class Download(Resource):
 	def post(self):
+		if(artifact.checkState()):
+			filename = artifact.getFilename()
+			return {"result": "busy", "message": "Публикуется сборка " + filename + ". Дождитесь завершения"}
 		args = artifact_parser.parse_args()
 		link = args['link']
 		print(link)
 		if(link != None):
 			artifact.downloadAxxonNextArtifact(link)
-			return {"message": "Download started"}
+			return {"result": "done", "message": "Download started"}
 		else:
-			return {"message": "Failed"}
+			return {"result": "failed", "message": "Failed"}
 
 # получение прогресса загрузки
 class DownloadProgress(Resource):
@@ -125,6 +128,15 @@ class DownloadProgress(Resource):
 class getFilename(Resource):
 	def get(self):
 		return artifact.getFilename()
+
+# проверка, запущена ли публикация сборки
+class checkState(Resource):
+	def get(self):
+		if(artifact.checkState()):
+			filename = artifact.getFilename()
+			return {"result": "busy", "message": "Публикуется сборка " + filename + ". Дождитесь завершения и обновите страницу"}
+		else:
+			return {"result": "free", "message": "---"}
 
 # остановка процесса загрузки
 class CancelDownload(Resource):
@@ -186,11 +198,13 @@ class UpdatePages(Resource):
 			try:
 				# получение ID страниц
 				pagesIDs  = str(plan['confluence_page']).split(",")
+				print("IDS: " + str(pagesIDs))
 			except:
 				print("error")
 				return {"result": "error", "message": "Невозможно получить параметры страниц из БД, либо параметры указаны некорректно"}
 			confluenceExecutor = Confluence()
 			for pageID in pagesIDs:
+				print("ID: " + pageID)
 				try:
 					# получение страницы
 					pageBody = confluenceExecutor.getPageBody(pageID)
@@ -206,7 +220,7 @@ class UpdatePages(Resource):
 					print("error")
 					return {"result": "error", "message": "Ошибка при обращении к Confluence API. Невозможно обновить страницу"}
 
-				return {"result": "done", "message": "Page updated"}
+			return {"result": "done", "message": "Pages updated"}
 		else:
 			return {"result": "error", "message": "Ошибка при обращении к БД"}
 	
@@ -236,6 +250,9 @@ api.add_resource(DownloadProgress,
 
 api.add_resource(CancelDownload,
 	'/download/cancel')
+
+api.add_resource(checkState,
+	'/download/state')
 
 api.add_resource(clearCounters,
 	'/download/clear')

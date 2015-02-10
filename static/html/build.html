@@ -30,6 +30,7 @@
 <div class="ui divider"></div>
 <div ng-repeat = "a in artifacts">
   <p><b>[[a.split('/')[a.split('/').length-2] ]]</b></p>
+  <div class="ui small yellow message" ng-show = "currentState.result == 'busy'" >[[currentState.message]]</div>
   <span class="ui tiny purple button" ng-click = "downloadBuild(a)" ng-class = "controlClass">[[downloadButtonName]]</span>
   <a class="ui tiny purple button" HREF = "[[a]]">Загрузить локально</a>
 </div>
@@ -73,10 +74,13 @@
   <br><div class="ui tiny purple button" ng-click = "cancelDownload()" ng-show = "showDownloadProgress">Отменить загрузку</div>
 </div>
   <div class="ui divider"></div>
-  <div class="ui small yellow message"ng-hide = "" >Фильтры в Jira и страницы в Confluence можно обновить только после окончания загрузки сборки</div>
-  <span class="ui tiny purple button" ng-click = "updateFilters(currentExistingPlan.bamboo_plan)" ng-class = "controlFiltersButtonClass">Обновить фильтры в Jira</span>
-  <span class="ui tiny purple button" ng-click = "updatePages(currentExistingPlan.bamboo_plan, filename)" ng-class = "controlPagesButtonClass">Обновить страницы в Confluence</span>
+  <div class="ui small yellow message"ng-hide = "" >Фильтры в Jira и страницы в Confluence будут автоматически обновлены после окончания загрузки сборки.</div>
+  
   <div class="ui small green message" ng-show = "(result.result == 'done' ) && showFiltersMessage" >Фильтры успешно обновлены</div>
-  <div class="ui small red message"   ng-show = "(result.result == 'error') && showFiltersMessage" >При обновлении фильтров возникла ошибка: [[result.message]]</div>
+  <div class="ui small red message"   ng-show = "(result.result == 'error') && showFiltersMessage" >При обновлении фильтров возникла ошибка: [[result.message]]<br>
+    <a ng-click = "updateFilters(currentExistingPlan.bamboo_plan)" ng-class = "controlFiltersButtonClass">Обновить фильтры в Jira еще раз.</a>
+  </div>
   <div class="ui small green message" ng-show = "(result.result == 'done' ) && showPageMessage" >Страницы успешно обновлены</div>
-  <div class="ui small red message"   ng-show = "(result.result == 'error') && showPageMessage" >При обновлении страниц возникла ошибка: [[result.message]]</div>
+  <div class="ui small red message"   ng-show = "(result.result == 'error') && showPageMessage" >При обновлении страниц возникла ошибка: [[result.message]]<br>
+    <a ng-click = "updatePages(currentExistingPlan.bamboo_plan, filename)" ng-class = "controlPagesButtonClass">Обновить страницы в Confluence еще раз</a>
+  </div>

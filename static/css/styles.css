@@ -18,6 +18,10 @@ body {
     z-index: 10;
 }
 
+.displaynone {
+    display: none;
+}
+
 .menu {
     background-color: white;
 }

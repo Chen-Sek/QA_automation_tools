@@ -45,6 +45,3 @@ Temporary Items
 __pycache__/
 db/
 temp/
-
-.db
-.pyc

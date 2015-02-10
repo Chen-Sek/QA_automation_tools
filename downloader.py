@@ -1,4 +1,5 @@
 import os
+import shutil
 import requests
 from requests.auth import HTTPBasicAuth
 from html.parser import HTMLParser
@@ -13,7 +14,7 @@ username = appSettings['bamboo_token'].split(":")[0]
 password = appSettings['bamboo_token'].split(":")[1]
 
 # путь для загрузки
-# dlPath = "\\\\fs\\weekly\\test\\"
+#dlPath = "\\\\fs\\weekly\\test\\"
 dlPath = "temp\\"
 # dlPath = "\\\\A-VASILIEV\\downloads\\temp\\"
 
@@ -22,6 +23,7 @@ class Downloader:
 
 	# поток, в котором будет выполняться загрузка
 	thread     = None
+	uplThread     = None
 	# событие для завершения потока
 	t_stop       = threading.Event()
 	# загружено на данный момент
@@ -47,17 +49,26 @@ class Downloader:
 			self.downloaded = 0;
 			self.total = 0;
 			self.fullPath = ""
+			self.thread = None
 			return { "message": "Download canceled" }
 		else:
 			return { "message": "Nothing to cancel" }
 
-
-	# сброк счетчиков
+	# сброс счетчиков
 	def clear(self):
-		self.downloaded = 0;
-		self.total = 0;
+		self.downloaded = 0
+		self.total = 0
 		self.fullPath = ""
+		self.thread = None
 		return { "message": "counters cleared" }
+
+	# проверка запущенности
+	def checkState(self):
+		if(self.thread == None):
+			return False
+		else:
+			return True
+
 
 	# при загрузе артефакта AN сначала нужно распарсить страницу, получаемую
 	# по адресу типа https://build.itvgroup.ru/bamboo/browse/ASIP-AN362-186/artifact/JOB1/installer/
@@ -112,7 +123,7 @@ class Downloader:
 				print("File length: " + str(self.total))
 				
 				with open(self.fullPath, 'wb') as f:
-					for chunk in r.iter_content(chunk_size=4096): 
+					for chunk in r.iter_content(chunk_size=1048576): 
 						if chunk: # filter out keep-alive new chunks
 							f.write(chunk)
 							self.downloaded += len(chunk)
@@ -130,6 +141,39 @@ class Downloader:
 			# создание и запуск потока
 			self.thread = Thread( target = download, args = (fullLink, self.t_stop, ) )
 			self.thread.start()
-			return True
 		else:
 			return False
+
+	#def uploadAxxonNextArtifact(self, filename):
+	#	# функция потока загрузки
+	#	def upload(stop_event):
+	#		#filename = self.fullPath.split('\\')[-1]
+	#		if not os.path.exists(uplPath):
+	#			try:
+	#				os.makedirs(uplPath)
+	#			except:
+	#				return False
+	#		self.fullPath = uplPath + "\\" + filename
+#
+	#		source = open(dlPath + filename, 'rb')
+	#		target = open(self.fullPath,     'wb')
+#
+	#		while(chunk = source.read(32768)):
+	#			if chunk: # filter out keep-alive new chunks
+	#				target.write(chunk)
+	#				self.downloaded += len(chunk)
+	#				if(stop_event.is_set()):
+	#					source.close()
+	#					target.close()
+	#					self.downloaded = 0
+	#					try:
+	#						os.remove(self.fullPath)
+	#					except:
+	#						pass
+	#					return False
+	#		return self.fullPath
+	#		
+	#	# создание и запуск потока
+	#	self.uplThread = Thread( target = upload, args = (self.t_stop, ) )
+	#	self.uplThread.start()
+	#	return True
