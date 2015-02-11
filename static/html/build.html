@@ -77,10 +77,10 @@
   <div class="ui small yellow message"ng-hide = "" >Фильтры в Jira и страницы в Confluence будут автоматически обновлены после окончания загрузки сборки.</div>
   
   <div class="ui small green message" ng-show = "(result.result == 'done' ) && showFiltersMessage" >Фильтры успешно обновлены</div>
-  <div class="ui small red message"   ng-show = "(result.result == 'error') && showFiltersMessage" >При обновлении фильтров возникла ошибка: [[result.message]]<br>
+  <div class="ui small red message"   ng-show = "(result.result == 'ferror') && showFiltersMessage" >При обновлении фильтров возникла ошибка: [[result.message]]<br>
     <a ng-click = "updateFilters(currentExistingPlan.bamboo_plan)" ng-class = "controlFiltersButtonClass">Обновить фильтры в Jira еще раз.</a>
   </div>
   <div class="ui small green message" ng-show = "(result.result == 'done' ) && showPageMessage" >Страницы успешно обновлены</div>
-  <div class="ui small red message"   ng-show = "(result.result == 'error') && showPageMessage" >При обновлении страниц возникла ошибка: [[result.message]]<br>
+  <div class="ui small red message"   ng-show = "(result.result == 'perror') && showPageMessage" >При обновлении страниц возникла ошибка: [[result.message]]<br>
     <a ng-click = "updatePages(currentExistingPlan.bamboo_plan, filename)" ng-class = "controlPagesButtonClass">Обновить страницы в Confluence еще раз</a>
   </div>

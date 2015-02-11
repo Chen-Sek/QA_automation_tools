@@ -159,8 +159,8 @@ class UpdateFilters(Resource):
 				jiraFilterIssuesID  = int(plan['jira_filter_issues'])
 				jiraFilterCheckedID = int(plan['jira_filter_checked'])
 			except:
-				print("error")
-				return {"result": "error", "message": "Невозможно получить параметры фильтров из БД, либо ID фильтра не является числом"}
+				print("ferror")
+				return {"result": "ferror", "message": "Невозможно получить параметры фильтров из БД, либо ID фильтра не является числом"}
 			try:
 				jiraExecutor = JiraFilters()
 				# получение фильтров
@@ -181,9 +181,9 @@ class UpdateFilters(Resource):
 				return {"result": "done", "message": "Filters updated"}
 			except:
 				print("error")
-				return {"result": "error", "message": "Ошибка при обращении к Jira API. Возможно, Jira не работает, либо ID фильтра задан некорректно"}
+				return {"result": "ferror", "message": "Ошибка при обращении к Jira API. Возможно, Jira не работает, либо ID фильтра задан некорректно"}
 		else:
-			return {"result": "error", "message": "Ошибка при обращении к БД"}
+			return {"result": "ferror", "message": "Ошибка при обращении к БД"}
 
 class UpdatePages(Resource):
 	def post(self, key):
@@ -200,8 +200,8 @@ class UpdatePages(Resource):
 				pagesIDs  = str(plan['confluence_page']).split(",")
 				print("IDS: " + str(pagesIDs))
 			except:
-				print("error")
-				return {"result": "error", "message": "Невозможно получить параметры страниц из БД, либо параметры указаны некорректно"}
+				print("perror")
+				return {"result": "perror", "message": "Невозможно получить параметры страниц из БД, либо параметры указаны некорректно"}
 			confluenceExecutor = Confluence()
 			for pageID in pagesIDs:
 				print("ID: " + pageID)
@@ -209,20 +209,20 @@ class UpdatePages(Resource):
 					# получение страницы
 					pageBody = confluenceExecutor.getPageBody(pageID)
 				except:
-					print("error")
-					return {"result": "error", "message": "Ошибка при обращении к Confluence API. Невозможно получить страницу"}
+					print("perror")
+					return {"result": "perror", "message": "Ошибка при обращении к Confluence API. Невозможно получить страницу"}
 				# обновление содержимого
 				pageNewBody  = confluenceExecutor.changeTextInBody(pageBody['body'], pageArgs['filename'])
 				try:
 	
 					confluenceExecutor.updatePageBody(pageID, pageNewBody, pageBody['version'], pageBody['name'], pageBody['ancestors'])
 				except:
-					print("error")
-					return {"result": "error", "message": "Ошибка при обращении к Confluence API. Невозможно обновить страницу"}
+					print("perror")
+					return {"result": "perror", "message": "Ошибка при обращении к Confluence API. Невозможно обновить страницу"}
 
 			return {"result": "done", "message": "Pages updated"}
 		else:
-			return {"result": "error", "message": "Ошибка при обращении к БД"}
+			return {"result": "perror", "message": "Ошибка при обращении к БД"}
 	
 
 # routing
