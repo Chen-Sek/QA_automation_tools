@@ -45,3 +45,5 @@ Temporary Items
 __pycache__/
 db/
 temp/
+
+.log
