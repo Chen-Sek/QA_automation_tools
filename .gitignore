@@ -46,4 +46,6 @@ __pycache__/
 db/
 temp/
 
-.log
+*.log
+*.db
+*.pyc
