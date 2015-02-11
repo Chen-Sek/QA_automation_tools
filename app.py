@@ -56,6 +56,11 @@ class Metrics(Resource):
 		html = render_template("/metrics.html")
 		return Response(html, status = "200", mimetype='text/html')
 
+class MainSettings(Resource):
+	def get(self):
+		html = render_template("/settings.html")
+		return Response(html, status = "200", mimetype='text/html')
+
 class Settings(Resource):
 	def get(self):
 		logging.debug('Settings requested')
@@ -257,6 +262,9 @@ api.add_resource(Index,
 
 api.add_resource(Metrics,
 	'/metrics')
+
+api.add_resource(MainSettings,
+	'/mainsettings')
 
 api.add_resource(WeeklyBuilds,
 	'/builds')
