@@ -122,21 +122,24 @@ class Downloader:
 				
 				print("File length: " + str(self.total))
 				
-				with open(self.fullPath, 'wb') as f:
-					for chunk in r.iter_content(chunk_size=1048576): 
-						if chunk: # filter out keep-alive new chunks
-							f.write(chunk)
-							self.downloaded += len(chunk)
-							f.flush()
-							if(stop_event.is_set()):
-								f.close()
-								self.downloaded = 0
-								try:
-									os.remove(self.fullPath)
-								except:
-									pass
-								return False
-				return self.fullPath
+				try:
+					with open(self.fullPath, 'wb') as f:
+						for chunk in r.iter_content(chunk_size=1048576): 
+							if chunk: # filter out keep-alive new chunks
+								f.write(chunk)
+								self.downloaded += len(chunk)
+								f.flush()
+								if(stop_event.is_set()):
+									f.close()
+									self.downloaded = 0
+									try:
+										os.remove(self.fullPath)
+									except:
+										pass
+									return False
+					return self.fullPath
+				except(PermissionError):
+					return False
 			
 			# создание и запуск потока
 			self.thread = Thread( target = download, args = (fullLink, self.t_stop, ) )

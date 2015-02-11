@@ -1,3 +1,4 @@
+import logging
 from flask import Flask, request, Response, render_template
 from flask.ext.restful import reqparse, abort, Api, Resource
 import requests
@@ -8,6 +9,8 @@ from jiraFilters import *
 from confluencePages import *
 import json
 from datetime import datetime
+
+logging.basicConfig(filename='QAAutomationTools.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 dataBase = SettingsDB()
 appSettings = dataBase.getMainSettings()
@@ -45,14 +48,17 @@ class Index(Resource):
 
 class Settings(Resource):
 	def get(self):
+		logging.debug('Settings requested')
 		return appSettings
 
 # получение списка планов с bamboo
 class BambooAuth(Resource):
 	def get(self):
+		logging.debug('Bamboo plans requested')
 		#r = requests.get(appSettings['bamboo_url'] +'plan?os_authType=basic', auth=HTTPBasicAuth('roma,nbukharov', '21c0cd79Itv'))
 		try:
 			r = requests.get(appSettings['bamboo_url'] + 'plan.json?os_authType=basic', auth=HTTPBasicAuth(username, password))
+			logging.debug('Bamboo plans recieved')
 			return r.json()
 		except:
 			return {}
@@ -61,20 +67,16 @@ class BambooAuth(Resource):
 class Plans(Resource):
 	# получение планов из БД
 	def get(self):
+		logging.debug('Bamboo plans from DB requested')
 		return dataBase.getBuilds()
 
 	# добавление нового плана
 	def post(self):
+		logging.debug('Adding plan to DB:')
+		
 		args = plan_parser.parse_args()
-		# DEBUG:
-		print("I've got parameters:")
-		print(args['name'])
-		print(args['bamboo_plan'])
-		print(args['jira_filter_issues'])
-		print(args['jira_filter_checked'])
-		print("prev_date" + args['prev_date'])
-		print(args['confluence_page'])
-		print("_________________________")
+		
+		logging.debug('New plan parameters: \nkey: ' + args['bamboo_plan'], '\nfilter issues: ', args['jira_filter_issues'], '\nfilter checked: ', args['jira_filter_checked'], '\nprev_date: ' + args['prev_date'], '\npage', args['confluence_page'])
 		
 		# если плана нет в БД, создаем его
 		if(not dataBase.getBuild( args['bamboo_plan'] )):
@@ -84,11 +86,17 @@ class Plans(Resource):
 									args['jira_filter_checked'],
 									args['prev_date'],
 									args['confluence_page'])):
+				logging.debug('Plan ' + args['bamboo_plan'] + ' added')
+				
 				return {"message": "Plan added", "key": args['bamboo_plan']}
 			else:
+				logging.debug('Plan ' + args['bamboo_plan'] + ' adding failed')
+				
 				return {"message": "Adding plan failed", "key": "-1"}
 		# если план существует, обновляем его параметры
 		else:
+			logging.debug('Plan ' + args['bamboo_plan'] + ' already exists. Update parameters')
+			
 			dataBase.updateBuild(args['bamboo_plan'],
 									"Plan" + args['bamboo_plan'],
 									args['jira_filter_issues'],
@@ -96,27 +104,34 @@ class Plans(Resource):
 									args['prev_date'],
 									args['confluence_page'])
 
+			logging.debug('Plan ' + args['bamboo_plan'] + ' parameters updated')
+			
 			return {"message": "Plan updated", "key": args['bamboo_plan']}
 
 # получение списка последних 10 сборок
 class Builds(Resource):
 	def get(self, key):
+		logging.debug('Get builds from bamboo')
 		r = requests.get(appSettings['bamboo_url'] + 'result/' + key + '.json?os_authType=basic&expand=results[0:9].result.artifacts', auth=HTTPBasicAuth(username, password))
 		return r.json()
 
 # загрузка артефакта
 class Download(Resource):
 	def post(self):
+		logging.debug('Publish build')
 		if(artifact.checkState()):
 			filename = artifact.getFilename()
+			logging.debug('Another build is publishing')
 			return {"result": "busy", "message": "Публикуется сборка " + filename + ". Дождитесь завершения"}
 		args = artifact_parser.parse_args()
 		link = args['link']
 		print(link)
 		if(link != None):
 			artifact.downloadAxxonNextArtifact(link)
+			logging.debug('Download started')
 			return {"result": "done", "message": "Download started"}
 		else:
+			logging.debug('Starting download failed')
 			return {"result": "failed", "message": "Failed"}
 
 # получение прогресса загрузки
@@ -268,4 +283,6 @@ api.add_resource(UpdatePages,
 if __name__ == '__main__':
 
 	# запуск API
-	app.run(host='0.0.0.0', port=5000, debug=True)
+	host='0.0.0.0'
+	port=5000
+	app.run(host=host, port=port, debug=True)
