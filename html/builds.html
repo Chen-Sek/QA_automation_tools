@@ -12,22 +12,26 @@
     </head>
     <body ng-controller = "MainController as main">
       <div ng-include = "'static/html/menu.html'"></div>
-      <div class = "ui two column centered grid" style = "margin-top:10px;">
-        <div class="column">
-          <a href = "/builds">
-            <div class="ui purple  stacked segment">
-              <b>Еженедельные сборки AxxonNext</b>
-              <p>Раздел автоматической публикации сборок AxxonNext</p>
+      <div>
+        <div class="ui two column centered grid" ng-controller="AuthController">
+          <div class="three wide column">
+            <div ng-include = "'static/html/plans.html'"></div>
+          </div>
+          <div class="eight wide column" ng-hide="selected_build">
+            <div ng-hide = "show_placeholder || show_builds || selected_build">
+              <div ng-include = "'static/html/placeholder_init.html'"></div>
             </div>
-          </a>
-          <div class="ui horizontal divider"></div>
-          <a href = "/metrics">
-            <div class="ui purple  stacked segment">
-              <b>Метрики</b>
-              <p>Раздел сбора метрик сотрудников отдела QA</p>
+            <div ng-show = "show_placeholder">
+              <div ng-include = "'static/html/placeholder_load.html'"></div>
             </div>
-          </a>
+            <div ng-include = "'static/html/builds.html'"></div>
+          </div>
+          <div class="eight wide column" ng-show = "selected_build">
+            <div ng-include = "'static/html/build.html'"></div>
+          </div>
         </div>
       </div>
+
+
     </body>
 </html>

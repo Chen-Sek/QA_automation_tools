@@ -1,5 +1,4 @@
 import os
-import shutil
 import requests
 from requests.auth import HTTPBasicAuth
 from html.parser import HTMLParser

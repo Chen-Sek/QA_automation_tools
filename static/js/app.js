@@ -7,19 +7,13 @@
   }]);
 
   app.controller('MainController', function($scope){
-    $scope.menuBuildsActiveClass = 'active'
-    $scope.show_weekly_builds = true;
-    $scope.show_builds = function() {
-      $scope.show_weekly_builds = true;
-    }
-    $scope.show_other = function() {
-      $scope.show_weekly_builds = false;
-    }
+    
   });
 
   app.controller('AuthController', function($scope, $http, $interval){
-    $scope.show_builds = false
-    $scope.selected_build = false
+    $scope.show_builds = false;
+    $scope.show_plans = false;
+    $scope.selected_build = false;
     $scope.current_plan = ""
 
     //получаем параметры приложения
@@ -47,6 +41,7 @@
     bambooAuth = function() {
       $http.get('/auth').success(function(data, status, headers, config) {
         $scope.bambooPlans = data.plans.plan;
+        $scope.show_plans = true;
       }).error(function(data, status, headers, config) { }); 
     }
     bambooAuth()
