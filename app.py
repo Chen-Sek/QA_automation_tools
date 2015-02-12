@@ -80,12 +80,10 @@ class saveSettingsValues(Resource):
 	def post(self):
 		settings = {}
 		args = settings_parser.parse_args()
-		if(dataBase.editMainSettings('bamboo_token', args['username'] + ":" + args['password'])):
-			settings['username'] = args['username']
+		dataBase.editMainSettings('bamboo_token', args['username'] + ":" + args['password'])
 		for a in args:
 			if(a != 'username' and a != 'password'):
-				if(dataBase.editMainSettings(a, args[a])):
-					settings[a] = args[a]
+				dataBase.editMainSettings(a, args[a])
 		return settings
 
 class Settings(Resource):

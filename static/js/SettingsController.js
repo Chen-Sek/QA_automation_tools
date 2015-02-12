@@ -18,7 +18,9 @@ app.controller('SettingsController', function($scope, $http){
                  "confluence_url": settings.confluence_url };
 
     $http.post('/mainsettings/save', data).success(function(data, status, headers, config) {
-      $scope.settings = data;
+      $http.get('/mainsettings/get').success(function(data, status, headers, config) {
+          $scope.settings = data;
+      }).error(function(data, status, headers, config) { });
     }).error(function(data, status, headers, config) { });
   }
   
