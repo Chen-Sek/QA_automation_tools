@@ -1,4 +1,16 @@
-angular.module('AutomationTools', []).controller('BuildsController', function($scope, $http, $interval){
+(function(){
+  var app = angular.module('AutomationTools', []);
+
+  app.config(['$interpolateProvider', function($interpolateProvider) {
+    $interpolateProvider.startSymbol('[[');
+    $interpolateProvider.endSymbol(']]');
+  }]);
+
+  app.controller('MainController', function($scope){
+    
+  });
+
+  app.controller('AuthController', function($scope, $http, $interval){
     $scope.show_builds = false;
     $scope.show_plans = false;
     $scope.selected_build = false;
@@ -285,6 +297,8 @@ angular.module('AutomationTools', []).controller('BuildsController', function($s
       }).error(function(data, status, headers, config) { }); 
     }
 
-});
+  });
+
+})();
 
 
