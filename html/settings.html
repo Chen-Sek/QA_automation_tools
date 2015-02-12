@@ -14,14 +14,15 @@
     <body>
       <div ng-include = "'static/html/menu.html'"></div>
         <div class = "ui two column centered grid" style = "margin-top:10px;">
-          <div class = "column">
+          <div class = "column" ng-controller = "SettingsController">
+            <div class="ui small green message" ng-show = "show_message" >Изменения сохранены</div>
             <div class="ui attached message">
               <div class="header">
                 Основные настройки
               </div>
               <p>Основные настройки</p>
             </div>
-            <div class="ui form attached fluid segment" ng-controller = "SettingsController">
+            <div class="ui form attached fluid segment">
               <form name = "buildParameters">
                 <div class="two fields">
                   <div class="field">
