@@ -2,7 +2,10 @@
 <html ng-app="AutomationTools">
     <head>
         <script type="text/javascript" src="{{ url_for('static', filename='js/angular.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/app.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/mainApp.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/mainAppConfig.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/mainAppMainController.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/mainAppBuildsController.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-2.1.3.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='semantic/semantic.min.js') }}"></script>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='semantic/semantic.min.css') }}" />
@@ -12,7 +15,7 @@
     </head>
     <body ng-controller = "MainController as main">
       <div ng-include = "'static/html/menu.html'"></div>
-        <div class = "ui two column centered grid" style = "margin-top:10px;">
+        <div class = "ui two column centered grid" style = "margin-top:10px;" ng-controller = "SettingsController">
           <div class = "column">
             <div class="ui attached message">
               <div class="header">
@@ -48,10 +51,8 @@
                 <div class="ui tiny purple submit button" ng-click = "saveSettings(settings)">Сохранить</div>
               </form>
             </div>
-
           </div>
         </div>
       </div>
-
     </body>
 </html>
