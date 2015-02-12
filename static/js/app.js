@@ -9,7 +9,7 @@ app.controller('MainController', function($scope){
   
 });
 
-app.controller('AuthController', function($scope, $http, $interval){
+app.controller('BuildsController', function($scope, $http, $interval){
   $scope.show_builds = false;
   $scope.show_plans = false;
   $scope.selected_build = false;
