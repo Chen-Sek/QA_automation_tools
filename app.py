@@ -72,7 +72,7 @@ class BambooAuth(Resource):
 		logging.debug('Bamboo plans requested')
 		#r = requests.get(appSettings['bamboo_url'] +'plan?os_authType=basic', auth=HTTPBasicAuth('roma,nbukharov', '21c0cd79Itv'))
 		try:
-			r = requests.get(appSettings['bamboo_url'] + 'plan.json?os_authType=basic', auth=HTTPBasicAuth(username, password))
+			r = requests.get(appSettings['bamboo_url'] + 'rest/api/latest/' + 'plan.json?os_authType=basic', auth=HTTPBasicAuth(username, password))
 			logging.debug('Bamboo plans recieved')
 			return r.json()
 		except:
@@ -127,7 +127,7 @@ class Plans(Resource):
 class Builds(Resource):
 	def get(self, key):
 		logging.debug('Get builds from bamboo')
-		r = requests.get(appSettings['bamboo_url'] + 'result/' + key + '.json?os_authType=basic&expand=results[0:9].result.artifacts', auth=HTTPBasicAuth(username, password))
+		r = requests.get(appSettings['bamboo_url'] + 'rest/api/latest/result/' + key + '.json?os_authType=basic&expand=results[0:9].result.artifacts', auth=HTTPBasicAuth(username, password))
 		return r.json()
 
 # загрузка артефакта
