@@ -69,21 +69,23 @@ class MainSettings(Resource):
 		html = render_template("/settings.html")
 		return Response(html, status = "200", mimetype='text/html')
 
-# получени еосновных настроек
+# получение основных настроек
 class getSettingsValues(Resource):
 	def get(self):
-		settings = {"username": username, "bamboo_url": appSettings['bamboo_url'], "jira_url": appSettings['jira_url'], "confluence_url": appSettings['confluence_url'] }
+		appSettings = dataBase.getMainSettings()
+		settings = {"username": appSettings['bamboo_token'].split(":")[0], "bamboo_url": appSettings['bamboo_url'], "jira_url": appSettings['jira_url'], "confluence_url": appSettings['confluence_url'] }
 		return settings
 
 # сохранение основных настроек
 class saveSettingsValues(Resource):
 	def post(self):
-		settings = {}
 		args = settings_parser.parse_args()
 		dataBase.editMainSettings('bamboo_token', args['username'] + ":" + args['password'])
 		for a in args:
 			if(a != 'username' and a != 'password'):
 				dataBase.editMainSettings(a, args[a])
+		appSettings = dataBase.getMainSettings()
+		settings = {"username": appSettings['bamboo_token'].split(":")[0], "bamboo_url": appSettings['bamboo_url'], "jira_url": appSettings['jira_url'], "confluence_url": appSettings['confluence_url'] }
 		return settings
 
 class Settings(Resource):
