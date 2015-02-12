@@ -35,6 +35,14 @@ artifact_parser.add_argument('link', type=str)
 page_parser = reqparse.RequestParser()
 page_parser.add_argument('filename',            type=str)
 
+# параметры основных настроек
+settings_parser = reqparse.RequestParser()
+settings_parser.add_argument('username',       type=str)
+settings_parser.add_argument('password',       type=str)
+settings_parser.add_argument('bamboo_url',     type=str)
+settings_parser.add_argument('jira_url',       type=str)
+settings_parser.add_argument('confluence_url', type=str)
+
 username = appSettings['bamboo_token'].split(":")[0]
 password = appSettings['bamboo_token'].split(":")[1]
 
@@ -60,6 +68,25 @@ class MainSettings(Resource):
 	def get(self):
 		html = render_template("/settings.html")
 		return Response(html, status = "200", mimetype='text/html')
+
+# получени еосновных настроек
+class getSettingsValues(Resource):
+	def get(self):
+		settings = {"username": username, "bamboo_url": appSettings['bamboo_url'], "jira_url": appSettings['jira_url'], "confluence_url": appSettings['confluence_url'] }
+		return settings
+
+# сохранение основных настроек
+class saveSettingsValues(Resource):
+	def post(self):
+		settings = {}
+		args = settings_parser.parse_args()
+		if(dataBase.editMainSettings('bamboo_token', args['username'] + ":" + args['password'])):
+			settings['username'] = args['username']
+		for a in args:
+			if(a != 'username' and a != 'password'):
+				if(dataBase.editMainSettings(a, args[a])):
+					settings[a] = args[a]
+		return settings
 
 class Settings(Resource):
 	def get(self):
@@ -265,6 +292,12 @@ api.add_resource(Metrics,
 
 api.add_resource(MainSettings,
 	'/mainsettings')
+
+api.add_resource(getSettingsValues,
+	'/mainsettings/get')
+
+api.add_resource(saveSettingsValues,
+	'/mainsettings/save')
 
 api.add_resource(WeeklyBuilds,
 	'/builds')

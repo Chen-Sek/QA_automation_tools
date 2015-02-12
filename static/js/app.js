@@ -18,7 +18,7 @@ app.controller('BuildsController', function($scope, $http, $interval){
   //получаем параметры приложения
   $http.get('/settings').success(function(data, status, headers, config) {
       $scope.settings = data;
-    }).error(function(data, status, headers, config) { });
+  }).error(function(data, status, headers, config) { });
 
   // получение списка добавленных планов
   function getAddedPlans(currentKey) {
