@@ -12,7 +12,45 @@
     </head>
     <body ng-controller = "MainController as main">
       <div ng-include = "'static/html/menu.html'"></div>
-        Основные настройки
+        <div class = "ui two column centered grid" style = "margin-top:10px;">
+          <div class = "column">
+            <div class="ui attached message">
+              <div class="header">
+                Основные настройки
+              </div>
+              <p>Основные настройки</p>
+            </div>
+            <div class="ui form attached fluid segment">
+              <form name = "buildParameters">
+                <div class="two fields">
+                  <div class="field">
+                    <label>Имя пользователя</label>
+                    <input value = "[[settings.username]]" type="text"     name = "username" ng-model = "settings.username">
+                  </div>
+                  <div class="field">
+                    <label>Пароль пользователя</label>
+                    <input value = ""                      type="password" name = "password" ng-model = "settings.password">
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Ссылка на Bamboo</label>
+                  <input value = "[[settings.bamboo_url]]" type="text" name = "BambooURL" ng-model = "settings.bamboo_url">
+                </div>
+                <div class="field">
+                  <label>Ссылка на Jira</label>
+                  <input value = "[[settings.jira_url]]" type="text" name = "JiraURL" ng-model = "settings.jira_url">
+                </div>
+                <div class="field">
+                  <label>Ссылка на Confluence</label>
+                  <input value = "[[settings.confluence_url]]" type="text" name = "ConfluenceURL" ng-model = "settings.confluence_url">
+                </div>
+                                      
+                <div class="ui tiny purple submit button" ng-click = "saveSettings(settings)">Сохранить</div>
+              </form>
+            </div>
+
+          </div>
+        </div>
       </div>
 
     </body>
