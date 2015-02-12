@@ -3,7 +3,6 @@
     <head>
         <script type="text/javascript" src="{{ url_for('static', filename='js/angular.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/app.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/BuildsController.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-2.1.3.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='semantic/semantic.min.js') }}"></script>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='semantic/semantic.min.css') }}" />
@@ -11,7 +10,7 @@
         <title>QA automation tools</title>
 
     </head>
-    <body ng-controller>
+    <body ng-controller = "MainController as main">
       <div ng-include = "'static/html/menu.html'"></div>
       <div>
         <div class="ui two column centered grid" ng-controller="BuildsController">
