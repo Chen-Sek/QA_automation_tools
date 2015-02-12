@@ -79,12 +79,24 @@ class getSettingsValues(Resource):
 # сохранение основных настроек
 class saveSettingsValues(Resource):
 	def post(self):
+		# получаем пользовательские данные
 		args = settings_parser.parse_args()
-		dataBase.editMainSettings('bamboo_token', args['username'] + ":" + args['password'])
+		# получаем данные из БД
+		appSettings = dataBase.getMainSettings()
+		# обновление пользователя
+		if(args['password'] != ""):
+			# если пароль не пустой, обновляем все
+			dataBase.editMainSettings('bamboo_token', args['username'] + ":" + args['password'])
+		else:
+			# если пароль пустой, осталяем пароль старым
+			dataBase.editMainSettings('bamboo_token', args['username'] + ":" + appSettings['bamboo_token'].split(":")[1])
+		# обновляем остальное
 		for a in args:
 			if(a != 'username' and a != 'password'):
 				dataBase.editMainSettings(a, args[a])
+		# получаем обновленные параметры из БД
 		appSettings = dataBase.getMainSettings()
+		# возвращаем новые параметры
 		settings = {"username": appSettings['bamboo_token'].split(":")[0], "bamboo_url": appSettings['bamboo_url'], "jira_url": appSettings['jira_url'], "confluence_url": appSettings['confluence_url'] }
 		return settings
 
@@ -96,10 +108,11 @@ class Settings(Resource):
 # получение списка планов с bamboo
 class BambooAuth(Resource):
 	def get(self):
+		appSettings = dataBase.getMainSettings()
 		logging.debug('Bamboo plans requested')
 		#r = requests.get(appSettings['bamboo_url'] +'plan?os_authType=basic', auth=HTTPBasicAuth('roma,nbukharov', '21c0cd79Itv'))
 		try:
-			r = requests.get(appSettings['bamboo_url'] + 'rest/api/latest/' + 'plan.json?os_authType=basic', auth=HTTPBasicAuth(username, password))
+			r = requests.get(appSettings['bamboo_url'] + 'rest/api/latest/' + 'plan.json?os_authType=basic', auth=HTTPBasicAuth(appSettings['bamboo_token'].split(":")[0], appSettings['bamboo_token'].split(":")[1]))
 			logging.debug('Bamboo plans recieved')
 			return r.json()
 		except:
@@ -153,8 +166,9 @@ class Plans(Resource):
 # получение списка последних 10 сборок
 class Builds(Resource):
 	def get(self, key):
+		appSettings = dataBase.getMainSettings()
 		logging.debug('Get builds from bamboo')
-		r = requests.get(appSettings['bamboo_url'] + 'rest/api/latest/result/' + key + '.json?os_authType=basic&expand=results[0:9].result.artifacts', auth=HTTPBasicAuth(username, password))
+		r = requests.get(appSettings['bamboo_url'] + 'rest/api/latest/result/' + key + '.json?os_authType=basic&expand=results[0:9].result.artifacts', auth=HTTPBasicAuth(appSettings['bamboo_token'].split(":")[0], appSettings['bamboo_token'].split(":")[1]))
 		return r.json()
 
 # загрузка артефакта
