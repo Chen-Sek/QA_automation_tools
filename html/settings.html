@@ -3,6 +3,7 @@
     <head>
         <script type="text/javascript" src="{{ url_for('static', filename='js/angular.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/app.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/SettingsController.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-2.1.3.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='semantic/semantic.min.js') }}"></script>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='semantic/semantic.min.css') }}" />
@@ -10,7 +11,7 @@
         <title>QA automation tools - settings</title>
 
     </head>
-    <body ng-controller = "MainController as main">
+    <body>
       <div ng-include = "'static/html/menu.html'"></div>
         <div class = "ui two column centered grid" style = "margin-top:10px;">
           <div class = "column">
@@ -20,7 +21,7 @@
               </div>
               <p>Основные настройки</p>
             </div>
-            <div class="ui form attached fluid segment">
+            <div class="ui form attached fluid segment" ng-controller = "SettingsController">
               <form name = "buildParameters">
                 <div class="two fields">
                   <div class="field">
