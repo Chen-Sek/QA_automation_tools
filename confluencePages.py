@@ -25,6 +25,10 @@ class Confluence:
 
 	# обновление содержимого страницы
 	def updatePageBody(self, pageId, _body, _version, _title, _ancestors):
+		appSettings = dataBase.getMainSettings()
+		username = appSettings['bamboo_token'].split(":")[0]
+		password = appSettings['bamboo_token'].split(":")[1]
+		
 		url = options['server'] + pagePostfix
 		expand = "?expand=body.storage"
 		headers = { "Content-Type": "application/json" }

@@ -7,6 +7,10 @@ path = 'db\\'
 
 # БД параметров
 settings_db = SqliteDatabase(path + 'settings.db')
+# БД метрик
+metrics_db = SqliteDatabase(path + 'metrics.db')
+
+# БД параметров____________________________________________________________________________________________________________________
 
 # основные параметры
 parameters = [   { 'name': 'bamboo_token',     'value': ' '},
@@ -37,9 +41,237 @@ class WeeklyBuilds(Model):
 	class Meta:
 		database = settings_db
 
+# БД метрик_________________________________________________________________________________________________________________________
+class mUser(Model):
+	name = CharField(default = "")
+	class Meta:
+		database = metrics_db
+
+class Metrics(Model):
+	user             = ForeignKeyField(mUser, related_name='metrics')
+	# месяц
+	month            = IntegerField(default = "0")
+	# год
+	year             = IntegerField(default = "0")
+	
+	# кол-во багов типа blocker
+	bugs_blocker     = IntegerField(default = "0")
+	# кол-во багов типа critical
+	bugs_critical    = IntegerField(default = "0")
+	# кол-во багов типа major
+	bugs_major       = IntegerField(default = "0")
+	# кол-во багов типа minor
+	bugs_minor       = IntegerField(default = "0")
+	# кол-во багов типа trivial
+	bugs_trivial     = IntegerField(default = "0")
+	# кол-во improvements
+	improvements     = IntegerField(default = "0")
+	# кол-во project requirements
+	requirements     = IntegerField(default = "0")
+	# общее кол-во задач
+	issues_count     = FloatField(default = "0")
+	
+	# запланированное время в Jira
+	original_estimate= FloatField(default = "0")
+	# затраченное время в Jira
+	time_spent       = FloatField(default = "0")
+	# время на внутренние задачи
+	time_internal    = FloatField(default = "0")
+	# время на тестирование
+	time_testing     = FloatField(default = "0")
+	# требуемое время в часах
+	hours_required    = FloatField(default = "0")
+	# пропущено дней
+	days_missed       = FloatField(default = "0")
+	# качество логирования времени
+	logging_quality  = FloatField(default = "0")
+	# скорость тестирования
+	testing_velocity = FloatField(default = "0")
+	#
+	oe_ts            = FloatField(default = "0")
+	
+	class Meta:
+		database = metrics_db
+
+# операции с БД метрик______________________________________
 #________________ инициализация базы данных ________________
 
-# операции с БД параметров
+# операции с БД метрик
+class MetricsDB(object):
+	def __init__(self):
+		# создание БД и ее схемы, если ее нет
+		try: # создание таблиц
+			mUser.create_table()
+			Metrics.create_table()
+			print("Metrics database has been created")
+		except:
+			print("Metrics database schema loaded")
+
+	# операции с пользователями
+	def addmUser(self, username):
+		if(username != None):
+			mUser.create(name = username)
+			return True
+		else:
+			return False
+
+	def removemUser(self, username):
+		if(username != None):
+			user = mUser.get(mUser.name == username)
+			user.delete_instance()
+			return True
+		else:
+			return False
+
+	def getmUsers(self):
+		users = []
+		for u in mUser.select():
+			user = {'name': u.name, 'id': u.id }
+			users.append(user)
+		return users
+
+	def getmUser(self, username):
+		if(username != None):
+			user = mUser.get(mUser.name == username)
+			return {'name': user.name, 'id': user.id }
+		else:
+			return False
+
+	# операции с метриками
+	def addMetrics(self, values):
+		try:
+			user           = mUser.get(mUser.id == values['user_id'])
+		except:
+			print("error get user")
+			return False
+		try:
+			month            = values['month']
+		except:
+			month            = 0
+		try:
+			year             = values['year']
+		except:
+			year             = 0
+		
+		try:
+			bugs_blocker     = values['bugs_blocker']
+		except:
+			bugs_blocker     = 0
+		try:
+			bugs_critical    = values['bugs_critical']
+		except:
+			bugs_critical    = 0
+		try:
+			bugs_major       = values['bugs_major']
+		except:
+			bugs_major       = 0
+		try:
+			bugs_minor       = values['bugs_minor']
+		except:
+			bugs_minor       = 0
+		try:
+			bugs_trivial     = values['bugs_trivial']
+		except:
+			bugs_trivial     = 0
+		try:
+			improvements     = values['improvements']
+		except:
+			improvements     = 0
+		try:
+			requirements     = values['requirements']
+		except:
+			requirements     = 0
+		try:
+			issues_count     = values['issues_count']
+		except:
+			issues_count     = 0
+		
+		try:
+			original_estimate= values['original_estimate']
+		except:
+			original_estimate= 0
+		try:
+			time_spent       = values['time_spent']
+		except:
+			time_spent       = 0
+		try:
+			time_internal    = values['time_internal']
+		except:
+			time_internal    = 0
+		try:
+			time_testing     = values['time_testing']
+		except:
+			time_testing     = 0
+		try:
+			hours_required   = values['hours_required']
+		except:
+			hours_required   = 0
+		try:
+			days_missed      = values['days_missed']
+		except:
+			days_missed      = 0
+		try:
+			logging_quality  = values['logging_quality']
+		except:
+			logging_quality  = 0
+		try:
+			testing_velocity = values['testing_velocity']
+		except:
+			testing_velocity = 0
+		try:
+			oe_ts            = values['oe_ts']
+		except:
+			oe_ts            = 0
+
+		m = Metrics.select().where((Metrics.user ==  values['user_id']) & (Metrics.month ==  month) & (Metrics.year ==  year))
+		if(m.exists()):
+			print("record exists. Updating...")
+			met = Metrics.update(
+								bugs_blocker     = bugs_blocker,
+								bugs_critical    = bugs_critical,
+								bugs_major       = bugs_major,
+								bugs_minor       = bugs_minor,
+								bugs_trivial     = bugs_trivial,
+								improvements     = improvements,
+								requirements     = requirements,
+								issues_count     = issues_count,
+								original_estimate= original_estimate,
+								time_spent       = time_spent,
+								time_internal    = time_internal,
+								time_testing     = time_testing,
+								hours_required   = hours_required,
+								days_missed      = days_missed,
+								logging_quality  = logging_quality,
+								testing_velocity = testing_velocity,
+								oe_ts            = oe_ts).where((Metrics.user ==  values['user_id']) & (Metrics.month ==  month) & (Metrics.year ==  year))
+			met.execute()
+		else:
+			Metrics.create( user             = user,            
+							month            = month,
+							year             = year,
+							bugs_blocker     = bugs_blocker,
+							bugs_critical    = bugs_critical,
+							bugs_major       = bugs_major,
+							bugs_minor       = bugs_minor,
+							bugs_trivial     = bugs_trivial,
+							improvements     = improvements,
+							requirements     = requirements,
+							issues_count     = issues_count,
+							original_estimate= original_estimate,
+							time_spent       = time_spent,
+							time_internal    = time_internal,
+							time_testing     = time_testing,
+							hours_required   = hours_required,
+							days_missed      = days_missed,
+							logging_quality  = logging_quality,
+							testing_velocity = testing_velocity,
+							oe_ts            = oe_ts)
+		return True
+
+
+
+# операции с БД параметров__________________________________
+#________________ инициализация базы данных ________________
 class SettingsDB(object):
 	def __init__(self):
 		# создание БД и ее схемы, если ее нет

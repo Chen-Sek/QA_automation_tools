@@ -13,6 +13,7 @@ from datetime import datetime
 logging.basicConfig(filename='QAAutomationTools.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 dataBase = SettingsDB()
+metrics = MetricsDB()
 appSettings = dataBase.getMainSettings()
 
 app = Flask(__name__, template_folder="html")
