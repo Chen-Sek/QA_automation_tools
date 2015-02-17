@@ -223,7 +223,7 @@ class MetricsDB(object):
 		except:
 			oe_ts            = 0
 
-		m = Metrics.select().where((Metrics.user ==  values['user_id']) & (Metrics.month ==  month) & (Metrics.year ==  year))
+		m = Metrics.select().where( (Metrics.user ==  values['user_id']) & (Metrics.month ==  month) & (Metrics.year ==  year) )
 		if(m.exists()):
 			print("record exists. Updating...")
 			met = Metrics.update(
@@ -243,7 +243,7 @@ class MetricsDB(object):
 								days_missed      = days_missed,
 								logging_quality  = logging_quality,
 								testing_velocity = testing_velocity,
-								oe_ts            = oe_ts).where((Metrics.user ==  values['user_id']) & (Metrics.month ==  month) & (Metrics.year ==  year))
+								oe_ts            = oe_ts).where( (Metrics.user ==  values['user_id']) & (Metrics.month ==  month) & (Metrics.year ==  year) )
 			met.execute()
 		else:
 			Metrics.create( user             = user,            
@@ -267,6 +267,34 @@ class MetricsDB(object):
 							testing_velocity = testing_velocity,
 							oe_ts            = oe_ts)
 		return True
+
+	def getMetrics(self, month, year):
+		metrics = []
+		for m in Metrics.select().where( (Metrics.month ==  month) & (Metrics.year ==  year) ):
+			print(m.id)
+			metric = {  'id'               : m.id, 
+						          
+						'month'            : m.month,
+						'year'             : m.year,
+						'bugs_blocker'     : m.bugs_blocker,
+						'bugs_critical'    : m.bugs_critical,
+						'bugs_major'       : m.bugs_major,
+						'bugs_minor'       : m.bugs_minor,
+						'bugs_trivial'     : m.bugs_trivial,
+						'improvements'     : m.improvements,
+						'requirements'     : m.requirements,
+						'issues_count'     : m.issues_count,
+						'original_estimate': m.original_estimate,
+						'time_spent'       : m.time_spent,
+						'time_internal'    : m.time_internal,
+						'time_testing'     : m.time_testing,
+						'hours_required'   : m.hours_required,
+						'days_missed'      : m.days_missed,
+						'logging_quality'  : m.logging_quality,
+						'testing_velocity' : m.testing_velocity,
+						'oe_ts'            : m.oe_ts }
+			metrics.append(metric)
+		return metrics
 
 
 
