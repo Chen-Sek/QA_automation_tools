@@ -230,7 +230,7 @@ class JiraFilters:
 						if(str(currDay) == str(day)):
 							time += int(entry['timeSpent'])
 					#print(str(time) + "-" + str(datetime.datetime.utcfromtimestamp(entry['created']/1000).date()))
-				print("День " + str(day) + ". залогировано " + str(time))
+				# print("День " + str(day) + ". залогировано " + str(time))
 				# если time за день не стало больше 0, увеличиваем количество пропущенных дней
 				if(time == 0):
 					missedCount += 1
@@ -250,7 +250,7 @@ class JiraFilters:
 		__QA_OETSCount = OETSCount(user_issues_assignee['issues'])
 		## время, затраченное в DEV
 		__DevOETSCount = OETSCount(user_dev_issues_assignee['issues'])
-		print(user_timesheet_report['worklog'][0]['entries'])
+		#print(user_timesheet_report['worklog'][0]['entries'])
 		__daysMissedCount = daysMissedCount(user_timesheet_report['worklog'])
 		__testVelocity = (__issuesCountByType['bugs_total'] + __issuesCountByType['improvements'] + __issuesCountByType['requirements']) / daysInMonth
 		# end of расчет___________________________________________________________________________
@@ -284,8 +284,8 @@ class JiraFilters:
 							'logging_quality':   0,
 							'testing_velocity':  __testVelocity,
 							'oe_ts': __QA_OETSCount['OE']/__QA_OETSCount['TS'] }
-		print(__QA_OETSCount['OE']/__QA_OETSCount['TS'])
+		# print(__QA_OETSCount['OE']/__QA_OETSCount['TS'])
 		if(metricsDB.addMetrics(metricsValues)):
-			return True
+			return metricsDB.getMetrics(month, year)
 		else:
-			return False
+			return []

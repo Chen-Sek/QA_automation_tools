@@ -44,6 +44,17 @@ settings_parser.add_argument('bamboo_url',     type=str)
 settings_parser.add_argument('jira_url',       type=str)
 settings_parser.add_argument('confluence_url', type=str)
 
+# параметры метрик. Добавление сотрудника
+mUsers_parser = reqparse.RequestParser()
+mUsers_parser.add_argument('username',       type=str)
+
+# параметры метрик. Расчет
+metrics_parser = reqparse.RequestParser()
+metrics_parser.add_argument('username',    type=str)
+metrics_parser.add_argument('month',       type=str)
+metrics_parser.add_argument('daysInMonth', type=str)
+metrics_parser.add_argument('year',        type=str)
+
 username = appSettings['bamboo_token'].split(":")[0]
 password = appSettings['bamboo_token'].split(":")[1]
 
@@ -295,7 +306,41 @@ class UpdatePages(Resource):
 			return {"result": "done", "message": "Pages updated"}
 		else:
 			return {"result": "perror", "message": "Ошибка при обращении к БД"}
-	
+
+class Users(Resource):
+	def get(self):
+		return metrics.getmUsers()
+
+	def post(self):
+		args = mUsers_parser.parse_args()
+		user = metrics.addmUser(args['username'])
+		if(user != False):
+			return {"message": "user successfully added"}
+		else:
+			return {"message": "error add user"}
+
+class User(Resource):
+	def get(self, name):
+		user = metrics.getmUser(name)
+		if(user != False):
+			return user
+		else:
+			return {"message": "error get user"}
+
+	def delete(self, name):
+		user = metrics.removemUser(name)
+		if(user != False):
+			return {"message": "user successfully removed"}
+		else:
+			return {"message": "error remove user"}
+
+class GetMetrics(Resource):
+	def get(self):
+		args = metrics_parser.parse_args()   
+		jiraMetrics = JiraFilters()
+		metrics = jiraMetrics.getMetrics(args['username'], int(args['daysInMonth']), int(args['month']), int(args['year']))
+		return metrics
+
 
 # routing
 
@@ -351,6 +396,15 @@ api.add_resource(UpdateFilters,
 
 api.add_resource(UpdatePages,
 	'/plans/<string:key>/updatepages')
+
+api.add_resource(Users,
+	'/metrics/users')
+
+api.add_resource(User,
+	'/metrics/users/<string:name>')
+
+api.add_resource(GetMetrics,
+	'/metrics/get')
 
 if __name__ == '__main__':
 

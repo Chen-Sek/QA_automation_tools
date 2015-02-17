@@ -109,18 +109,21 @@ class MetricsDB(object):
 
 	# операции с пользователями
 	def addmUser(self, username):
-		if(username != None):
-			mUser.create(name = username)
-			return True
+		if(not mUser.select().where(mUser.name == username).exists()):
+			try:
+				mUser.create(name = username)
+				return True
+			except:
+				return False
 		else:
 			return False
 
 	def removemUser(self, username):
-		if(username != None):
+		try:
 			user = mUser.get(mUser.name == username)
 			user.delete_instance()
 			return True
-		else:
+		except:
 			return False
 
 	def getmUsers(self):
@@ -131,10 +134,10 @@ class MetricsDB(object):
 		return users
 
 	def getmUser(self, username):
-		if(username != None):
+		try:
 			user = mUser.get(mUser.name == username)
 			return {'name': user.name, 'id': user.id }
-		else:
+		except:
 			return False
 
 	# операции с метриками
