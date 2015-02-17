@@ -273,7 +273,7 @@ class MetricsDB(object):
 		for m in Metrics.select().where( (Metrics.month ==  month) & (Metrics.year ==  year) ):
 			print(m.id)
 			metric = {  'id'               : m.id, 
-						          
+						'user_id'          : m.user.name,          
 						'month'            : m.month,
 						'year'             : m.year,
 						'bugs_blocker'     : m.bugs_blocker,
