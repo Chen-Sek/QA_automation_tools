@@ -131,6 +131,7 @@ app.controller('MetricsController', function($scope, $http){
     $http.get('/metrics/get?users=' + $scope.selection + '&month=' + month + '&year=' + year + '&daysInMonth=' + metrics.days).success(function(data, status, headers, config) {
       $scope.gotmetrics = data;
       $scope.totalmetrics = totalMetrics($scope.gotmetrics);
+      console.log("metrics recieved.");
     }).error(function(data, status, headers, config) { });
   }
 

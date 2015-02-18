@@ -90,7 +90,7 @@ class JiraFilters:
 			    'priority',
 			    'timetracking',
 			    'issuetype',
-			    'component'
+			    'components'
 			],
 			'maxResults': 200
 		}
@@ -105,7 +105,7 @@ class JiraFilters:
 			    'priority',
 			    'created',
 			    'timetracking',
-			    'component'
+			    'components'
 			],
 			'maxResults': 200
 		}
@@ -118,7 +118,7 @@ class JiraFilters:
 			'fields': [
 			    'key',
 			    'timetracking',
-			    'component'
+			    'components'
 			],
 			'maxResults': 200
 		}
@@ -170,6 +170,7 @@ class JiraFilters:
 
 		## запланированное и потраченное время
 		def OETSCount(issuesList):
+			internal_components = ("Internal Task", "IP Test Bench", "Recommended Platforms", "Review", "Test Plan","Auto Test","Bug Bash","Development","HeadHunting","Matrix")
 			timeTracking = { 'OE'   : 0,
 							 'TS'   : 0,
 							 'TSint': 0 }
@@ -183,9 +184,10 @@ class JiraFilters:
 				except:
 					pass
 				try:
-					# TODO:
-					if(issue['fields']['component']['name'] == ""):
-						timeTracking['TS'] += int(issue['fields']['timetracking']['timeSpentSeconds'])
+					for c in issue['fields']['components']:
+						if(c['name'] in internal_components):
+							timeTracking['TSint'] += int(issue['fields']['timetracking']['timeSpentSeconds'])
+							continue
 				except:
 					pass
 			return timeTracking
@@ -220,6 +222,8 @@ class JiraFilters:
 			# вычитаем выходные
 			missedCount -= (lastDay - daysInMonth)
 			# print(missedCount)
+			if(missedCount < 0):
+				missedCount = 0
 			return missedCount
 
 		# end of функции для расчета______________________________________________________________
