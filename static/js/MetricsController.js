@@ -8,6 +8,10 @@ app.config(['$interpolateProvider', function($interpolateProvider) {
 app.controller('MetricsController', function($scope, $http){
 
   $scope.selection = [];
+
+  $('#workdays')
+    .popup()
+  ;
   
   // сегодняшняя дата
   var today = new Date();
