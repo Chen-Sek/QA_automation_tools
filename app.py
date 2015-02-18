@@ -9,6 +9,7 @@ from jiraFilters import *
 from confluencePages import *
 import json
 from datetime import datetime
+import calendar, datetime
 
 logging.basicConfig(filename='QAAutomationTools.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -349,9 +350,23 @@ class GetMetrics(Resource):
 
 class WorkDays(Resource):
 	def get(self, year, month):
-		jiraMetrics = JiraFilters()
-		workdays = jiraMetrics.worktimeInMonth(int(year), int(month))
-		return {'workdays': workdays }
+		# ориентировочное количество рабочего времени в месяце
+		month = int(month)
+		year = int(year)
+		lastDay = calendar.monthrange(year, month)[1]
+		fromdate = date(year, month, 1)
+		todate = date(year, month, lastDay)
+
+		daygenerator = (fromdate + timedelta(x) for x in range((todate - fromdate).days + 1))
+		res = sum(1 for day in daygenerator if day.weekday() < 5)
+
+		if(month == 2 or month == 3 or month == 6 or month == 11 ):
+			res -= 1
+		if(month == 5 ):
+			res -= 2
+		if(month == 1 ):
+			res -= 7
+		return {'workdays': res }
 		
 
 
