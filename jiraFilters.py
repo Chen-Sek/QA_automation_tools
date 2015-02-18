@@ -226,6 +226,34 @@ class JiraFilters:
 				missedCount = 0
 			return missedCount
 
+		# подсчет времени на внутренние задачи
+		## timesheet_report возвращается timesheet report api и содержит информацию о залогированном времени.
+		## подробнее http://www.jiratimesheet.com/wiki/RESTful_endpoint.html
+		def getTimeInternal(timesheet_report):
+			
+			timeInternal = 0
+			# цикл по задачам в отчете
+			for issue in timesheet_report:
+				# в каждой задаче есть список entries - фактов логирования времени. Цикл по списку
+				for entry in issue['entries']:
+					# определение дня, когда был залогирован очередной entry
+					currDay = datetime.datetime.utcfromtimestamp(entry['created']/1000).date()
+					# если в определенный день хоть что-то залогировано, увеличиваем time
+					if(str(currDay) == str(day)):
+						time += int(entry['timeSpent'])
+				#print(str(time) + "-" + str(datetime.datetime.utcfromtimestamp(entry['created']/1000).date()))
+			# print("День " + str(day) + ". залогировано " + str(time))
+			# если time за день не стало больше 0, увеличиваем количество пропущенных дней
+			
+			if(time == 0):
+				missedCount += 1
+			# вычитаем выходные
+			missedCount -= (lastDay - daysInMonth)
+			# print(missedCount)
+			if(missedCount < 0):
+				missedCount = 0
+			return missedCount
+
 		# end of функции для расчета______________________________________________________________
 		
 		# расчет__________________________________________________________________________________
