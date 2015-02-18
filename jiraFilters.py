@@ -124,7 +124,7 @@ class JiraFilters:
 		}
 
 		## отчет о потраченном времени
-		timesheet_report = 'rest/timesheet-gadget/1.0/raw-timesheet.json?targetmUser=' + user + '&startDate=' + str(year) + '-' + str(month) + '-01&endDate=' + str(year) + '-' + str(month) + '-' + str(lastDay)
+		timesheet_report = 'rest/timesheet-gadget/1.0/raw-timesheet.json?targetUser=' + user + '&startDate=' + str(year) + '-' + str(month) + '-01&endDate=' + str(year) + '-' + str(month) + '-' + str(lastDay)
 
 		# end of строки запросов__________________________________________________________________
 		
