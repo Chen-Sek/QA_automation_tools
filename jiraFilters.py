@@ -191,7 +191,7 @@ class JiraFilters:
 			todate   = date(year, month, lastDay) # по
 			
 			daygenerator = (fromdate + timedelta(x) for x in range((todate - fromdate).days + 1))
-
+			# количество пропущенных дней
 			missedCount = 0
 			# цикл по дням в месяце
 			for day in daygenerator:
@@ -212,7 +212,6 @@ class JiraFilters:
 					missedCount += 1
 			# вычитаем выходные
 			missedCount -= (lastDay - daysInMonth)
-			# print(missedCount)
 			if(missedCount < 0):
 				missedCount = 0
 			return missedCount
@@ -221,16 +220,22 @@ class JiraFilters:
 		## timesheet_report возвращается timesheet report api и содержит информацию о залогированном времени.
 		## подробнее http://www.jiratimesheet.com/wiki/RESTful_endpoint.html
 		def getTimeInternal(timesheet_report):
+			# компоненты внутренних задач
 			internal_components = ("Internal Task", "IP Test Bench", "Recommended Platforms", "Review", "Test Plan","Auto Test","Bug Bash","Development","HeadHunting","Matrix")
+			# время на внутренние задачи
 			timeInternal = 0
 			# цикл по задачам в отчете
 			for issue in timesheet_report:
-				# в каждой задаче есть список entries - фактов логирования времени. Цикл по списку
+				# получение информации о текущей задаче
 				i = self.jira.issue(issue['key'])
+				# цикл по компонентам текущей задачи и поиск совпадения с элементом internal_components
 				for c in i.fields.components:
 					if(c.name in internal_components):
+						# в каждой задаче есть список entries - фактов логирования времени. Цикл по списку
 						for entry in issue['entries']:
+							# если задача таки внутренняя, учитываем ее время
 							timeInternal += int(entry['timeSpent'])
+						# нужно только первое совпадение, поэтому из цикла по компонентам выходим намеренно
 						continue
 			return timeInternal
 
