@@ -11,12 +11,20 @@ app.controller('MetricsController', function($scope, $http){
 
   $('.mpopup').popup();
 
-  $scope.disabled = 'disabled';
+  $scope.addUserDisableClass = 'disabled';
+  $scope.metricsDisableClass = 'enabled';
   
   // если имя пользователя указано, разрешаем его добавить
   $scope.checkUserName = function() {
-    if($scope.newUser.name == '') $scope.disabled = 'disabled';
-    else $scope.disabled = 'enabled';
+    if($scope.newUser.name == '') $scope.addUserDisableClass = 'disabled';
+    else $scope.addUserDisableClass = 'enabled';
+  }
+
+  // если количество рабочих дней указано, разрешаем расчет метрик
+  $scope.checkWorkdays = function() {
+    console.log($scope.metrics.days);
+    if($scope.metrics.days == null) $scope.metricsDisableClass = 'disabled';
+    else $scope.metricsDisableClass = 'enabled';
   }
   
   // сегодняшняя дата
@@ -82,12 +90,47 @@ app.controller('MetricsController', function($scope, $http){
     }).error(function(data, status, headers, config) { });
   }
 
+  //подсчет суммы по отделу
+  function totalMetrics(metrics) {
+    var total = {  'bugs_blocker_critical_major'    : 0,
+                   'bugs_minor_trivial_improvements': 0,
+                   'worktime'                       : 0,
+                   'hours_required'                 : 0,
+                   'days_missed'                    : 0,
+                   'original_estimate'              : 0,
+                   'time_spent'                     : 0,
+                   'oe_ts'                          : 0,
+                   'logging_quality'                : 0,
+                   'time_internal'                  : 0,
+                   'time_testing'                   : 0,
+                   'issues_count'                   : 0,
+                   'testing_velocity'               : 0 }
+
+    for (var i = 0; i <  metrics.length; ++i) {
+      total.bugs_blocker_critical_major     += (metrics[i].bugs_blocker + metrics[i].bugs_critical + metrics[i].bugs_major)
+      total.bugs_minor_trivial_improvements += (metrics[i].bugs_minor + metrics[i].bugs_trivial + metrics[i].improvements)
+      total.worktime                        +=  metrics[i].worktime                       
+      total.hours_required                  +=  metrics[i].hours_required                 
+      total.days_missed                     +=  metrics[i].days_missed                    
+      total.original_estimate               +=  metrics[i].original_estimate              
+      total.time_spent                      +=  metrics[i].time_spent                     
+      total.oe_ts                           +=  metrics[i].oe_ts                          
+      total.logging_quality                 +=  metrics[i].logging_quality                
+      total.time_internal                   +=  metrics[i].time_internal                  
+      total.time_testing                    +=  metrics[i].time_testing                   
+      total.issues_count                    +=  metrics[i].issues_count                   
+      total.testing_velocity                +=  metrics[i].testing_velocity               
+    }
+    return total;
+  }
+
   // получение метрик из jira
   $scope.getMetrics = function(metrics) {
     month = metrics.date.getMonth() + 1;
     year  = metrics.date.getFullYear();
     $http.get('/metrics/get?users=' + $scope.selection + '&month=' + month + '&year=' + year + '&daysInMonth=' + metrics.days).success(function(data, status, headers, config) {
       $scope.gotmetrics = data;
+      $scope.totalmetrics = totalMetrics($scope.gotmetrics);
     }).error(function(data, status, headers, config) { });
   }
 
@@ -97,6 +140,7 @@ app.controller('MetricsController', function($scope, $http){
     year  = metrics.date.getFullYear();
     $http.get('/metrics/get?month=' + month + '&year=' + year + '&daysInMonth=' + metrics.days).success(function(data, status, headers, config) {
       $scope.gotmetrics = data;
+      $scope.totalmetrics = totalMetrics($scope.gotmetrics);
     }).error(function(data, status, headers, config) { });
   }
   getMetricsFromDB($scope.metrics);

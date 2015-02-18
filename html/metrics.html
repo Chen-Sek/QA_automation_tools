@@ -29,7 +29,7 @@
                 <div class="field">
                   <div class="ui action input">
                     <input value="" type="text" name = "userName" placeholder="Добавить сотрудника" ng-model = "newUser.name" ng-change = "checkUserName()">
-                    <div class="ui purple right icon button" ng-click = "addUser(newUser)" ng-class = "disabled"><i class="plus icon"></i></div>
+                    <div class="ui purple right icon button" ng-click = "addUser(newUser)" ng-class = "addUserDisableClass"><i class="plus icon"></i></div>
                   </div>
                 </div>
                 <div class="field">
@@ -47,49 +47,65 @@
               </div>
               <div class="four wide field">
                 Количество рабочих дней:
-                <input class = "mpopup" type="number" name = "days" min="1" max="31" ng-model = "metrics.days" data-content="Переносы праздников не учитываются. При необходимости исправьте значение перед расчетом" data-position="right center"/>
+                <input class = "mpopup" type="number" name = "days" min="1" max="31" ng-change = "checkWorkdays()" ng-model = "metrics.days" data-content="Переносы праздников не учитываются. При необходимости исправьте значение перед расчетом" data-position="right center"/>
               </div>
             </div>
           </form>
-          <table class="ui very basic compact collapsing table">
+          <table class="ui compact collapsing table">
             <thead>
               <tr>
                 <th class = "theader-small">Сотрудник</th>
-                <th class = "theader-small">Создано замечаний</th>
                 <th class = "theader-small">Создано blocker + critical + major</th>
-                <th class = "theader-small">Создано minor + trivial</th>
-                <th class = "theader-small">Создано improvements</th>
-                <th class = "theader-small">Создано requirements</th>
+                <th class = "theader-small">Создано minor + trivial + improvements</th>
+                <th class = "theader-small">Рабочее время (часов)</th>
+                <th class = "theader-small">Требуемое рабочее время (часов)</th>
                 <th class = "theader-small">Пропущено дней</th>
-                <th class = "theader-small">Время на внутренние задачи</th>
-                <th class = "theader-small">Занятость в тестировании</th>
                 <th class = "theader-small">OE</th>
                 <th class = "theader-small">TS</th>
                 <th class = "theader-small">OE/TS</th>
                 <th class = "theader-small">Качество логирования</th>
+                <th class = "theader-small">Время на внутренние задачи</th>
+                <th class = "theader-small">Занятость в тестировании</th>
+                <th class = "theader-small">Создано замечаний</th>
                 <th class = "theader-small">Скорость тестирования</th>
               </tr>
             </thead>
             <tbody>
               <tr class="item" ng-repeat = "m in gotmetrics">
                 <td>[[m.user_id]]</td>
-                <td>[[m.issues_count]]</td>
                 <td>[[m.bugs_blocker + m.bugs_critical + m.bugs_major]]</td>
-                <td>[[m.bugs_minor + m.bugs_trivial]]</td>
-                <td>[[m.improvements]]</td>
-                <td>[[m.requirements]]</td>
+                <td>[[m.bugs_minor + m.bugs_trivial + m.improvements]]</td>
+                <td> </td>
+                <td>[[m.hours_required]]</td>
                 <td>[[m.days_missed]]</td>
-                <td>[[m.time_internal]]</td>
-                <td>[[m.time_testing]]</td>
                 <td>[[m.original_estimate/60/60 | limitTo: 5]]</td>
                 <td>[[m.time_spent/60/60 | limitTo: 5]]</td>
                 <td>[[m.oe_ts | limitTo: 5]]</td>
                 <td>[[m.logging_quality | limitTo: 5]]</td>
+                <td>[[m.time_internal]]</td>
+                <td>[[m.time_testing]]</td>
+                <td>[[m.issues_count]]</td>
                 <td>[[m.testing_velocity | limitTo: 5]]</td>
+              </tr>
+              <tr class="warning item">
+                <td>Сумма по отделу</td>
+                <td>[[totalmetrics.bugs_blocker_critical_major]]</td>
+                <td>[[totalmetrics.bugs_minor_trivial_improvements]]</td>
+                <td> </td>
+                <td>[[totalmetrics.hours_required]]</td>
+                <td>[[totalmetrics.days_missed]]</td>
+                <td>[[totalmetrics.original_estimate/60/60 | limitTo: 5]]</td>
+                <td>[[totalmetrics.time_spent/60/60 | limitTo: 5]]</td>
+                <td>[[totalmetrics.oe_ts | limitTo: 5]]</td>
+                <td>[[totalmetrics.logging_quality | limitTo: 5]]</td>
+                <td>[[totalmetrics.time_internal]]</td>
+                <td>[[totalmetrics.time_testing]]</td>
+                <td>[[totalmetrics.issues_count]]</td>
+                <td>[[totalmetrics.testing_velocity | limitTo: 5]]</td>
               </tr>
             </tbody>
           </table>
-          <div class="ui tiny purple button mpopup" ng-click = "getMetrics(metrics)" data-content="Если метрики уже были расчитаны, значения будут обновлены" data-position="right center">Рассчитать метрики для выбранных пользователей за указанный месяц</div>
+          <div class="ui tiny purple button mpopup" ng-click = "getMetrics(metrics)" ng-class = "metricsDisableClass" data-content="Если метрики уже были расчитаны, значения будут обновлены" data-position="right center">Рассчитать метрики для выбранных пользователей за указанный месяц</div>
         </div>
       </div>
     </div>
