@@ -41,13 +41,17 @@
         <div class = "column">
           <form name = "metricsForm" class= "ui form">
             <div class = "two fields">
-              <div class="four wide field">
+              <div class="three wide field">
                 Выберите месяц:
-                <input type="month" name = "date" ng-change = "updateWorkdaysCount(metrics.date)" ng-model = "metrics.date"/>
+                <div class = "ui small input">
+                  <input type="month" name = "date" ng-change = "updateWorkdaysCount(metrics.date)" ng-model = "metrics.date"/>
+                </div>
               </div>
-              <div class="four wide field">
+              <div class="four wide field" style = "margin-left:25px">
                 Количество рабочих дней:
-                <input class = "mpopup" type="number" name = "days" min="1" max="31" ng-change = "checkWorkdays()" ng-model = "metrics.days" data-content="Переносы праздников не учитываются. При необходимости исправьте значение перед расчетом" data-position="right center"/>
+                <div class = "ui small input">
+                  <input class = "mpopup" type="number" name = "days" min="1" max="31" ng-change = "checkWorkdays()" ng-model = "metrics.days" data-content="Переносы праздников не учитываются. При необходимости исправьте значение перед расчетом" data-position="right center"/>
+                </div>
               </div>
             </div>
           </form>
