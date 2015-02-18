@@ -12,7 +12,7 @@
   </head>
   <body>
     <div ng-include = "'static/html/menu.html'"></div>
-      <div class = "ui two column centered grid" style = "margin-top:10px;" ng-controller = "MetricsController">
+      <div class = "ui two column grid" style = "margin-top:2px;margin-left:0px;" ng-controller = "MetricsController">
         <div class = "ui three wide column">
           <h4 class="ui top attached header">Список сотрудников</h4>
               <div class="ui attached segment" ng-repeat="user in users">
@@ -47,10 +47,9 @@
               </div>
               <div class="four wide field">
                 Количество рабочих дней:
-                <input id = "workdays" type="number" name = "days" min="1" max="31" ng-model = "metrics.days" data-content="Переносы праздников не учитываются. При необходимости исправьте значение перед расчетом" data-position="right center"/>
+                <input class = "mpopup" type="number" name = "days" min="1" max="31" ng-model = "metrics.days" data-content="Переносы праздников не учитываются. При необходимости исправьте значение перед расчетом" data-position="right center"/>
               </div>
             </div>
-            <div class="ui tiny purple button" ng-click = "getMetrics(metrics)">Рассчитать метрики для выбранных пользователей</div>
           </form>
           <table class="ui very basic compact collapsing table">
             <thead>
@@ -88,6 +87,9 @@
                 <td>[[m.logging_quality | limitTo: 5]]</td>
                 <td>[[m.testing_velocity | limitTo: 5]]</td>
               </tr>
+            </tbody>
+          </table>
+          <div class="ui tiny purple button mpopup" ng-click = "getMetrics(metrics)" data-content="Если метрики уже были расчитаны, значения будут обновлены" data-position="right center">Рассчитать метрики для выбранных пользователей за указанный месяц</div>
         </div>
       </div>
     </div>

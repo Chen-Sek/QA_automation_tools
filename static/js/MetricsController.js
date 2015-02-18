@@ -9,7 +9,7 @@ app.controller('MetricsController', function($scope, $http){
 
   $scope.selection = [];
 
-  $('#workdays')
+  $('.mpopup')
     .popup()
   ;
   
@@ -29,6 +29,7 @@ app.controller('MetricsController', function($scope, $http){
 
   $scope.updateWorkdaysCount = function(date) {
     getWorkdays(date);
+    getMetricsFromDB($scope.metrics);
   }
 
   // toggle selection for a given user by name
@@ -75,6 +76,7 @@ app.controller('MetricsController', function($scope, $http){
     }).error(function(data, status, headers, config) { });
   }
 
+  // получение метрик из jira
   $scope.getMetrics = function(metrics) {
     month = metrics.date.getMonth() + 1;
     year  = metrics.date.getFullYear();
@@ -82,5 +84,15 @@ app.controller('MetricsController', function($scope, $http){
       $scope.gotmetrics = data;
     }).error(function(data, status, headers, config) { });
   }
+
+  // получение метрик из БД
+  function getMetricsFromDB(metrics) {
+    month = metrics.date.getMonth() + 1;
+    year  = metrics.date.getFullYear();
+    $http.get('/metrics/get?month=' + month + '&year=' + year + '&daysInMonth=' + metrics.days).success(function(data, status, headers, config) {
+      $scope.gotmetrics = data;
+    }).error(function(data, status, headers, config) { });
+  }
+  getMetricsFromDB($scope.metrics);
   
 });
