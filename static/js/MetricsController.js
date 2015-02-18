@@ -9,9 +9,15 @@ app.controller('MetricsController', function($scope, $http){
 
   $scope.selection = [];
 
-  $('.mpopup')
-    .popup()
-  ;
+  $('.mpopup').popup();
+
+  $scope.disabled = 'disabled';
+  
+  // если имя пользователя указано, разрешаем его добавить
+  $scope.checkUserName = function() {
+    if($scope.newUser.name == '') $scope.disabled = 'disabled';
+    else $scope.disabled = 'enabled';
+  }
   
   // сегодняшняя дата
   var today = new Date();

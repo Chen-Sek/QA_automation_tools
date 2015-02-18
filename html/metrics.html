@@ -28,8 +28,8 @@
               <div class="">
                 <div class="field">
                   <div class="ui action input">
-                    <input value="" type="text" name = "userName" placeholder="Добавить сотрудника" ng-model = "newUser.name">
-                    <div class="ui purple right icon button" ng-click = "addUser(newUser)"><i class="plus icon"></i></div>
+                    <input value="" type="text" name = "userName" placeholder="Добавить сотрудника" ng-model = "newUser.name" ng-change = "checkUserName()">
+                    <div class="ui purple right icon button" ng-click = "addUser(newUser)" ng-class = "disabled"><i class="plus icon"></i></div>
                   </div>
                 </div>
                 <div class="field">
