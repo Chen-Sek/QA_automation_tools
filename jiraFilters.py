@@ -66,23 +66,6 @@ class JiraFilters:
 		r = requests.put(url + str(filterId), data = json.dumps(newFilter), headers = headers, auth=HTTPBasicAuth(username, password))
 		return r
 
-	# ориентировочное количество рабочего времени в месяце
-	def worktimeInMonth(self, _year, _month):
-		lastDay = calendar.monthrange(_year, _month)[1]
-		fromdate = date(_year, _month, 1)
-		todate = date(_year, _month, lastDay)
-
-		daygenerator = (fromdate + timedelta(x) for x in range((todate - fromdate).days + 1))
-		res = sum(1 for day in daygenerator if day.weekday() < 5)
-
-		if(_month == 2 or _month == 3 or _month == 6 or _month == 11 ):
-			res -= 1
-		if(_month == 5 ):
-			res -= 2
-		if(_month == 1 ):
-			res -= 7
-		return res
-
 	# получение метрик
 	def getMetrics(self, user, daysInMonth, month, year):
 		# user - пользователь, для которого считаются метрики
