@@ -22,6 +22,10 @@ body {
     display: none;
 }
 
+.theader-small {
+	font-size: 0.75em;
+}
+
 .menu {
     background-color: white;
 }
@@ -33,7 +37,7 @@ body {
     padding: 10px;
 }
 
-tr:hover {
+tbody > tr:hover {
     background: #eeffe7!important;
     color: #3c763d!important;
 }

@@ -274,7 +274,7 @@ class MetricsDB(object):
 	def getMetrics(self, month, year):
 		metrics = []
 		for m in Metrics.select().where( (Metrics.month ==  month) & (Metrics.year ==  year) ):
-			print(m.id)
+			#print(m.id)
 			metric = {  'id'               : m.id, 
 						'user_id'          : m.user.name,          
 						'month'            : m.month,

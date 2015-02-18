@@ -53,8 +53,12 @@ app.controller('MetricsController', function($scope, $http){
     }).error(function(data, status, headers, config) { });
   }
 
-  $scope.getMetrics = function() {
-    alert($scope.selection)
+  $scope.getMetrics = function(metrics) {
+    month = metrics.date.getMonth() + 1;
+    year  = metrics.date.getFullYear();
+    $http.get('/metrics/get?users=' + $scope.selection + '&month=' + month + '&year=' + year + '&daysInMonth=' + metrics.days).success(function(data, status, headers, config) {
+      $scope.gotmetrics = data;
+    }).error(function(data, status, headers, config) { });
   }
   
 });

@@ -50,7 +50,7 @@ mUsers_parser.add_argument('username',       type=str)
 
 # параметры метрик. Расчет
 metrics_parser = reqparse.RequestParser()
-metrics_parser.add_argument('username',    type=str)
+metrics_parser.add_argument('users',    type=str)
 metrics_parser.add_argument('month',       type=str)
 metrics_parser.add_argument('daysInMonth', type=str)
 metrics_parser.add_argument('year',        type=str)
@@ -336,10 +336,16 @@ class User(Resource):
 
 class GetMetrics(Resource):
 	def get(self):
-		args = metrics_parser.parse_args()   
-		jiraMetrics = JiraFilters()
-		metrics = jiraMetrics.getMetrics(args['username'], int(args['daysInMonth']), int(args['month']), int(args['year']))
-		return metrics
+		args = metrics_parser.parse_args()
+		if(args['users'] != None):
+			users = args['users'].split(",")
+			__metrics = []
+			jiraMetrics = JiraFilters()
+			for user in users:
+				__metrics = jiraMetrics.getMetrics(user, int(args['daysInMonth']), int(args['month']), int(args['year']))
+			return __metrics
+		else:
+			return metrics.getMetrics(int(args['month']), int(args['year']))
 
 
 # routing

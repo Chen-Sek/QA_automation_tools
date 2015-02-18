@@ -253,6 +253,10 @@ class JiraFilters:
 		#print(user_timesheet_report['worklog'][0]['entries'])
 		__daysMissedCount = daysMissedCount(user_timesheet_report['worklog'])
 		__testVelocity = (__issuesCountByType['bugs_total'] + __issuesCountByType['improvements'] + __issuesCountByType['requirements']) / daysInMonth
+		try:
+			OE_TS = __QA_OETSCount['OE']/__QA_OETSCount['TS']
+		except:
+			OE_TS = 0
 		# end of расчет___________________________________________________________________________
 
 		# сохранение в БД ________________________________________________________________________
@@ -283,7 +287,7 @@ class JiraFilters:
 							'days_missed':       __daysMissedCount,
 							'logging_quality':   0,
 							'testing_velocity':  __testVelocity,
-							'oe_ts': __QA_OETSCount['OE']/__QA_OETSCount['TS'] }
+							'oe_ts': OE_TS }
 		# print(__QA_OETSCount['OE']/__QA_OETSCount['TS'])
 		if(metricsDB.addMetrics(metricsValues)):
 			return metricsDB.getMetrics(month, year)
