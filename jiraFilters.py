@@ -170,10 +170,8 @@ class JiraFilters:
 
 		## запланированное и потраченное время
 		def OETSCount(issuesList):
-			internal_components = ("Internal Task", "IP Test Bench", "Recommended Platforms", "Review", "Test Plan","Auto Test","Bug Bash","Development","HeadHunting","Matrix")
 			timeTracking = { 'OE'   : 0,
-							 'TS'   : 0,
-							 'TSint': 0 }
+							 'TS'   : 0 }
 			for issue in issuesList:
 				try:
 					timeTracking['OE'] += int(issue['fields']['timetracking']['originalEstimateSeconds'])
@@ -181,13 +179,6 @@ class JiraFilters:
 					pass
 				try:
 					timeTracking['TS'] += int(issue['fields']['timetracking']['timeSpentSeconds'])
-				except:
-					pass
-				try:
-					for c in issue['fields']['components']:
-						if(c['name'] in internal_components):
-							timeTracking['TSint'] += int(issue['fields']['timetracking']['timeSpentSeconds'])
-							continue
 				except:
 					pass
 			return timeTracking
@@ -230,29 +221,18 @@ class JiraFilters:
 		## timesheet_report возвращается timesheet report api и содержит информацию о залогированном времени.
 		## подробнее http://www.jiratimesheet.com/wiki/RESTful_endpoint.html
 		def getTimeInternal(timesheet_report):
-			
+			internal_components = ("Internal Task", "IP Test Bench", "Recommended Platforms", "Review", "Test Plan","Auto Test","Bug Bash","Development","HeadHunting","Matrix")
 			timeInternal = 0
 			# цикл по задачам в отчете
 			for issue in timesheet_report:
 				# в каждой задаче есть список entries - фактов логирования времени. Цикл по списку
-				for entry in issue['entries']:
-					# определение дня, когда был залогирован очередной entry
-					currDay = datetime.datetime.utcfromtimestamp(entry['created']/1000).date()
-					# если в определенный день хоть что-то залогировано, увеличиваем time
-					if(str(currDay) == str(day)):
-						time += int(entry['timeSpent'])
-				#print(str(time) + "-" + str(datetime.datetime.utcfromtimestamp(entry['created']/1000).date()))
-			# print("День " + str(day) + ". залогировано " + str(time))
-			# если time за день не стало больше 0, увеличиваем количество пропущенных дней
-			
-			if(time == 0):
-				missedCount += 1
-			# вычитаем выходные
-			missedCount -= (lastDay - daysInMonth)
-			# print(missedCount)
-			if(missedCount < 0):
-				missedCount = 0
-			return missedCount
+				i = self.jira.issue(issue['key'])
+				for c in i.fields.components:
+					if(c.name in internal_components):
+						for entry in issue['entries']:
+							timeInternal += int(entry['timeSpent'])
+						continue
+			return timeInternal
 
 		# end of функции для расчета______________________________________________________________
 		
@@ -267,6 +247,9 @@ class JiraFilters:
 		__DevOETSCount = OETSCount(user_dev_issues_assignee['issues'])
 		#print(user_timesheet_report['worklog'][0]['entries'])
 		__daysMissedCount = daysMissedCount(user_timesheet_report['worklog'])
+
+		__timeInternal = getTimeInternal(user_timesheet_report['worklog'])
+
 		__testVelocity = (__issuesCountByType['bugs_total'] + __issuesCountByType['improvements'] + __issuesCountByType['requirements']) / daysInMonth
 		try:
 			OE_TS = __QA_OETSCount['OE']/__QA_OETSCount['TS']
@@ -296,7 +279,7 @@ class JiraFilters:
 							'issues_count':      __issuesCountByType['bugs_total'] + __issuesCountByType['improvements'] + __issuesCountByType['requirements'],
 							'original_estimate': __QA_OETSCount['OE'],
 							'time_spent':        __QA_OETSCount['TS'],
-							'time_internal':     __QA_OETSCount['TSint'],
+							'time_internal':     __timeInternal,
 							'time_testing':      0,
 							'hours_required':    hoursRequired,
 							'days_missed':       __daysMissedCount,
