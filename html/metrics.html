@@ -43,7 +43,7 @@
             <div class = "two fields">
               <div class="four wide field">
                 Выберите месяц:
-                <input type="month" name = "date" ng-model = "metrics.date"/>
+                <input type="month" name = "date" ng-change = "updateWorkdaysCount(metrics.date)" ng-model = "metrics.date"/>
               </div>
               <div class="four wide field">
                 Количество рабочих дней:

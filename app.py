@@ -347,6 +347,13 @@ class GetMetrics(Resource):
 		else:
 			return metrics.getMetrics(int(args['month']), int(args['year']))
 
+class WorkDays(Resource):
+	def get(self, year, month):
+		jiraMetrics = JiraFilters()
+		workdays = jiraMetrics.worktimeInMonth(int(year), int(month))
+		return {'workdays': workdays }
+		
+
 
 # routing
 
@@ -411,6 +418,9 @@ api.add_resource(User,
 
 api.add_resource(GetMetrics,
 	'/metrics/get')
+
+api.add_resource(WorkDays,
+	'/metrics/workdays/<string:year>/<string:month>')
 
 if __name__ == '__main__':
 

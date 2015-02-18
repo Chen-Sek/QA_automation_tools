@@ -8,6 +8,24 @@ app.config(['$interpolateProvider', function($interpolateProvider) {
 app.controller('MetricsController', function($scope, $http){
 
   $scope.selection = [];
+  
+  // сегодняшняя дата
+  var today = new Date();
+
+  // дата для datepicker
+  $scope.metrics = { 'date': today, 'days': '' };
+  // получение количества рабочих дней в месяце
+  function getWorkdays(date) {
+    $http.get('/metrics/workdays/' + date.getFullYear() + '/' + (date.getMonth() + 1)).success(function(data, status, headers, config) {
+      $scope.metrics.days = data.workdays;
+      console.log("got " + '/metrics/workdays/' + date.getFullYear() + '/' + (date.getMonth() + 1));
+    }).error(function(data, status, headers, config) {});
+  }
+  getWorkdays(today);
+
+  $scope.updateWorkdaysCount = function(date) {
+    getWorkdays(date);
+  }
 
   // toggle selection for a given user by name
   $scope.toggleSelection = function toggleSelection(userName) {

@@ -68,7 +68,7 @@ class JiraFilters:
 
 	# ориентировочное количество рабочего времени в месяце
 	def worktimeInMonth(self, _year, _month):
-		lastDay = calendar.monthrange(year, month)[1]
+		lastDay = calendar.monthrange(_year, _month)[1]
 		fromdate = date(_year, _month, 1)
 		todate = date(_year, _month, lastDay)
 
