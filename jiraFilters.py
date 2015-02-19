@@ -207,28 +207,23 @@ class JiraFilters:
 			daygenerator = (fromdate + timedelta(x) for x in range((todate - fromdate).days + 1))
 			# количество пропущенных дней
 			missedCount = 0
+			days = {} # рабочих дней
 			# цикл по дням в месяце
 			for day in daygenerator:
-				time = 0 # залогировано за день
 				# цикл по задачам в отчете
 				for issue in timesheet_report:
 					# в каждой задаче есть список entries - фактов логирования времени. Цикл по списку
 					for entry in issue['entries']:
 						# определение дня, когда был залогирован очередной entry
-						currDay = datetime.datetime.utcfromtimestamp(entry['created']/1000).date()
+						currDay = datetime.datetime.utcfromtimestamp(entry['startDate']/1000).date()
 						# если в определенный день хоть что-то залогировано, увеличиваем time
 						if(str(currDay) == str(day)):
-							time += int(entry['timeSpent'])
-					#print(str(time) + "-" + str(datetime.datetime.utcfromtimestamp(entry['created']/1000).date()))
-				# print("День " + str(day) + ". залогировано " + str(time))
-				# если time за день не стало больше 0, увеличиваем количество пропущенных дней
-				if(time == 0):
-					missedCount += 1
+							days[str(currDay)] = 1
 			# вычитаем выходные
-			missedCount -= (lastDay - daysInMonth)
+			missedCount = daysInMonth - len(days)
 			if(missedCount < 0):
 				missedCount = 0
-			print(str(datetime.datetime.now().time()) + " end calc daysMissedCount") # debug
+			print(str(datetime.datetime.now().time()) + " end calc daysMissedCount: " + str(missedCount)) # debug
 			return missedCount
 
 		# подсчет времени на внутренние задачи
@@ -310,15 +305,23 @@ class JiraFilters:
 
 		__timeTesting = __timeTotal - __timeInternal
 
-		__loggingQuality = (__timeTotal/60/60) / hoursRequired
+		try:
+			__loggingQuality = (__timeTotal/60/60) / hoursRequired
+		except:
+			__loggingQuality = 0
 
 		bugs_total_weights = (__issuesCountByType['bugs_blocker'] + __issuesCountByType['bugs_critical'] + __issuesCountByType['bugs_major']) * 4 + (__issuesCountByType['bugs_minor'] + __issuesCountByType['bugs_trivial'] + __issuesCountByType['requirements'] + __issuesCountByType['improvements'])
-		__testVelocity = round(bugs_total_weights * 8 / (__timeTesting/60/60), 2)
+
+		try:
+			__testVelocity = round(bugs_total_weights * 8 / (__timeTesting/60/60), 2)
+		except:
+			__testVelocity = 0
 
 		try:
 			OE_TS = __QA_OETSCount['OE']/__QA_OETSCount['TS']
 		except:
 			OE_TS = 0
+
 		print(str(datetime.datetime.now().time()) + " end calc values and start write to DB") # debug
 		# end of расчет___________________________________________________________________________
 
