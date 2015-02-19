@@ -129,7 +129,7 @@ app.controller('MetricsController', function($scope, $http){
 
   // получение метрик из jira
   $scope.getMetrics = function(metrics) {
-    $scope.metricsDisableClass = "loading";
+    $scope.metricsDisableClass = "disabled loading";
     month = metrics.date.getMonth() + 1;
     year  = metrics.date.getFullYear();
     $http.get('/metrics/get?users=' + $scope.selection + '&month=' + month + '&year=' + year + '&daysInMonth=' + metrics.days).success(function(data, status, headers, config) {
