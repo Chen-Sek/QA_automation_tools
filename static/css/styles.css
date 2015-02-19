@@ -22,6 +22,11 @@ body {
     display: none;
 }
 
+.ui.top.right.attached.label {
+	padding: 5px;
+	cursor: pointer;
+}
+
 .theader-small {
 	font-size: 0.75em;
 }

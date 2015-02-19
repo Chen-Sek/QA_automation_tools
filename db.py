@@ -77,12 +77,14 @@ class Metrics(Model):
 	time_spent       = FloatField(default = "0")
 	# время на внутренние задачи
 	time_internal    = FloatField(default = "0")
+	# общее рабочее время
+	time_total       = FloatField(default = "0")
 	# время на тестирование
 	time_testing     = FloatField(default = "0")
 	# требуемое время в часах
-	hours_required    = FloatField(default = "0")
+	hours_required   = FloatField(default = "0")
 	# пропущено дней
-	days_missed       = FloatField(default = "0")
+	days_missed      = FloatField(default = "0")
 	# качество логирования времени
 	logging_quality  = FloatField(default = "0")
 	# скорость тестирования
@@ -188,7 +190,6 @@ class MetricsDB(object):
 			issues_count     = values['issues_count']
 		except:
 			issues_count     = 0
-		
 		try:
 			original_estimate= values['original_estimate']
 		except:
@@ -201,6 +202,10 @@ class MetricsDB(object):
 			time_internal    = values['time_internal']
 		except:
 			time_internal    = 0
+		try:
+			time_total       = values['time_total']
+		except:
+			time_total       = 0
 		try:
 			time_testing     = values['time_testing']
 		except:
@@ -228,7 +233,7 @@ class MetricsDB(object):
 
 		m = Metrics.select().where( (Metrics.user ==  values['user_id']) & (Metrics.month ==  month) & (Metrics.year ==  year) )
 		if(m.exists()):
-			print("record exists. Updating...")
+			# print("record exists. Updating...")
 			met = Metrics.update(
 								bugs_blocker     = bugs_blocker,
 								bugs_critical    = bugs_critical,
@@ -241,6 +246,7 @@ class MetricsDB(object):
 								original_estimate= original_estimate,
 								time_spent       = time_spent,
 								time_internal    = time_internal,
+								time_total       = time_total,
 								time_testing     = time_testing,
 								hours_required   = hours_required,
 								days_missed      = days_missed,
@@ -263,6 +269,7 @@ class MetricsDB(object):
 							original_estimate= original_estimate,
 							time_spent       = time_spent,
 							time_internal    = time_internal,
+							time_total       = time_total,
 							time_testing     = time_testing,
 							hours_required   = hours_required,
 							days_missed      = days_missed,
@@ -290,6 +297,7 @@ class MetricsDB(object):
 						'original_estimate': m.original_estimate,
 						'time_spent'       : m.time_spent,
 						'time_internal'    : m.time_internal,
+						'time_total'       : m.time_total,
 						'time_testing'     : m.time_testing,
 						'hours_required'   : m.hours_required,
 						'days_missed'      : m.days_missed,

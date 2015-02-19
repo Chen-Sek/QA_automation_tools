@@ -10,6 +10,7 @@ app.controller('MetricsController', function($scope, $http){
   $scope.selection = [];
 
   $('.mpopup').popup();
+  $('.ui.checkbox').checkbox();
 
   $scope.addUserDisableClass = 'disabled';
   $scope.metricsDisableClass = 'enabled';
@@ -102,6 +103,7 @@ app.controller('MetricsController', function($scope, $http){
                    'oe_ts'                          : 0,
                    'logging_quality'                : 0,
                    'time_internal'                  : 0,
+                   'time_total'                     : 0,
                    'time_testing'                   : 0,
                    'issues_count'                   : 0,
                    'testing_velocity'               : 0 }
@@ -116,7 +118,8 @@ app.controller('MetricsController', function($scope, $http){
       total.time_spent                      +=  metrics[i].time_spent                     
       total.oe_ts                           +=  metrics[i].oe_ts                          
       total.logging_quality                 +=  metrics[i].logging_quality                
-      total.time_internal                   +=  metrics[i].time_internal                  
+      total.time_internal                   +=  metrics[i].time_internal
+      total.time_total                      +=  metrics[i].time_total                  
       total.time_testing                    +=  metrics[i].time_testing                   
       total.issues_count                    +=  metrics[i].issues_count                   
       total.testing_velocity                +=  metrics[i].testing_velocity               

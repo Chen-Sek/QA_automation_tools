@@ -21,7 +21,8 @@
                   name="selectedUsers[]"
                   value="[[user.name]]"
                   ng-checked="selection.indexOf(user.name) > -1"
-                  ng-click="toggleSelection(user.name)"> [[user.name]] <div class="ui mini basic icon button" ng-click = "deleteUser(user.name)" style = "float:right"><i class="minus icon"></i></div>
+                  ng-click="toggleSelection(user.name)">
+                  <label>[[user.name]] <div class="ui top right attached label" ng-click = "deleteUser(user.name)">удалить</div> </label>
               </div>
           <div class="ui form fluid buttom attached segment" style = "padding-bottom:1px">
             <form name = "addUserForm">
@@ -64,8 +65,8 @@
                 <th class = "theader-small">Рабочее время (часов)</th>
                 <th class = "theader-small">Требуемое рабочее время (часов)</th>
                 <th class = "theader-small">Пропущено дней</th>
-                <th class = "theader-small">OE</th>
-                <th class = "theader-small">TS</th>
+                <th class = "theader-small">Запланиро-<br>ванное время (OE)</th>
+                <th class = "theader-small">Затраченное время (TS)</th>
                 <th class = "theader-small">OE/TS</th>
                 <th class = "theader-small">Качество логирования</th>
                 <th class = "theader-small">Время на внутренние задачи</th>
@@ -79,7 +80,7 @@
                 <td>[[m.user_id]]</td>
                 <td>[[m.bugs_blocker + m.bugs_critical + m.bugs_major]]</td>
                 <td>[[m.bugs_minor + m.bugs_trivial + m.improvements]]</td>
-                <td> </td>
+                <td>[[m.time_total/60/60 | limitTo: 5]] </td>
                 <td>[[m.hours_required]]</td>
                 <td>[[m.days_missed]]</td>
                 <td>[[m.original_estimate/60/60 | limitTo: 5]]</td>
@@ -87,7 +88,7 @@
                 <td>[[m.oe_ts | limitTo: 5]]</td>
                 <td>[[m.logging_quality | limitTo: 5]]</td>
                 <td>[[m.time_internal/60/60 | limitTo: 5]]</td>
-                <td>[[m.time_testing]]</td>
+                <td>[[m.time_testing/60/60 | limitTo: 5]]</td>
                 <td>[[m.issues_count]]</td>
                 <td>[[m.testing_velocity | limitTo: 5]]</td>
               </tr>
@@ -95,7 +96,7 @@
                 <td>Сумма по отделу</td>
                 <td>[[totalmetrics.bugs_blocker_critical_major]]</td>
                 <td>[[totalmetrics.bugs_minor_trivial_improvements]]</td>
-                <td> </td>
+                <td>[[totalmetrics.time_total/60/60 | limitTo: 5]]</td>
                 <td>[[totalmetrics.hours_required]]</td>
                 <td>[[totalmetrics.days_missed]]</td>
                 <td>[[totalmetrics.original_estimate/60/60 | limitTo: 5]]</td>
@@ -103,7 +104,7 @@
                 <td>[[totalmetrics.oe_ts | limitTo: 5]]</td>
                 <td>[[totalmetrics.logging_quality | limitTo: 5]]</td>
                 <td>[[totalmetrics.time_internal/60/60 | limitTo: 5]]</td>
-                <td>[[totalmetrics.time_testing]]</td>
+                <td>[[totalmetrics.time_testing/60/60 | limitTo: 5]]</td>
                 <td>[[totalmetrics.issues_count]]</td>
                 <td>[[totalmetrics.testing_velocity | limitTo: 5]]</td>
               </tr>

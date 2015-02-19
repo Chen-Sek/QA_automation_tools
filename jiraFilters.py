@@ -20,9 +20,13 @@ filterPostfix = "rest/api/latest/filter/"
 # управляет работой с Jira
 class JiraFilters:
 	jira = None
+	metricsDB = MetricsDB()
 
 	def __init__(self):
+		print(str(datetime.datetime.now().time()) + " starting") # debug
 		self.jira = JIRA(options, basic_auth=(username, password))
+		print(str(datetime.datetime.now().time()) + " jira initialized") # debug
+
 
 	# обновление даты в JQL фильтра
 	# принимает строку JQL и даты в формате YYYY-MM-DD
@@ -81,7 +85,7 @@ class JiraFilters:
 		lastDay = calendar.monthrange(year, month)[1]
 		# строки запросов_________________________________________________________________________
 		## Задачи, созданные пользователем, в категории Development
-		jql_user_issues_reporter  = 'category = Development AND created >= ' + str(year) + '-' + str(month) + '-01 AND created <= ' + str(year) + '-' + str(month) + '-' + str(lastDay) + ' AND reporter = ' + user
+		jql_user_issues_reporter  = 'project in (ACR,IPINT,INTL,CLC,ACFA,ATM,AUTO,FACE,POS,RSWT,LH,LS,SDVR,DDP,DRS,INTR,MC,CNV,SALE,SMV,SMN,SPRO,DDOC,WMSS,VIQ) AND issuetype in ("Bug","Task","Sub-task","Project Requirement", "Improvement") AND resolution in ("Unresolved","Fixed","Won\'t Fix") AND created >= ' + str(year) + '-' + str(month) + '-01 AND created <= ' + str(year) + '-' + str(month) + '-' + str(lastDay) + ' AND reporter = ' + user
 		data_user_issues_reporter = {
 			'jql': jql_user_issues_reporter,
 			'startAt': 0,
@@ -131,9 +135,13 @@ class JiraFilters:
 		# получение списков задач по jql__________________________________________________________
 		headers = { "Content-Type": "application/json" }
 		user_issues_reporter     = requests.post(url, data = json.dumps(data_user_issues_reporter), headers = headers, auth=HTTPBasicAuth(username, password)).json()
+		print(str(datetime.datetime.now().time()) + " first query done") # debug
 		user_issues_assignee     = requests.post(url, data = json.dumps(data_user_issues_assignee), headers = headers, auth=HTTPBasicAuth(username, password)).json()
+		print(str(datetime.datetime.now().time()) + " second query done") # debug
 		user_dev_issues_assignee = requests.post(url, data = json.dumps(data_user_dev_issues_assignee), headers = headers, auth=HTTPBasicAuth(username, password)).json()
+		print(str(datetime.datetime.now().time()) + " third query done") # debug
 		user_timesheet_report    = requests.get(options['server'] + timesheet_report, headers = headers, auth=HTTPBasicAuth(username, password)).json()
+		print(str(datetime.datetime.now().time()) + " fourth query done") # debug
 		# end of получение списков задач по jql___________________________________________________
 
 		# функции для расчета_____________________________________________________________________
@@ -141,20 +149,21 @@ class JiraFilters:
 
 		## количетсво созданных пользователем замечаний по типу. Использовать user_issues_reporter
 		def issuesCountByType(issuesList):
-			issuesCount = { 'bugs_blocker' : 0,
-							'bugs_critical': 0,
-							'bugs_major'   : 0,
-							'bugs_minor'   : 0,
-							'bugs_trivial' : 0,
-							'bugs_total'   : 0,
-							'improvements' : 0,
-							'requirements' : 0 }
+			print(str(datetime.datetime.now().time()) + " start calc bugs") # debug
+			issuesCount = { 'bugs_blocker'         : 0,
+							'bugs_critical'        : 0,
+							'bugs_major'           : 0,
+							'bugs_minor'           : 0,
+							'bugs_trivial'         : 0,
+							'bugs_total'           : 0,
+							'improvements'         : 0,
+							'requirements'         : 0 }
 			for issue in issuesList:
 				if(issue['fields']['issuetype']['name']    == 'Improvement'):
 					issuesCount['improvements']  += 1
 				if(issue['fields']['issuetype']['name']    == 'Project requirement'):
 					issuesCount['requirements']  += 1
-				if(issue['fields']['issuetype']['name']    == 'Bug'):
+				if(issue['fields']['issuetype']['name']    in ('Bug', 'Task', 'Sub-task')):
 					issuesCount['bugs_total']  += 1
 					if(issue['fields']['priority']['name'] == 'Blocker'):
 						issuesCount['bugs_blocker']  += 1
@@ -166,10 +175,13 @@ class JiraFilters:
 						issuesCount['bugs_minor']    += 1
 					if(issue['fields']['priority']['name'] == 'Trivial'):
 						issuesCount['bugs_trivial']  += 1
+
+			print(str(datetime.datetime.now().time()) + " end calc bugs") # debug
 			return issuesCount
 
 		## запланированное и потраченное время
 		def OETSCount(issuesList):
+			print(str(datetime.datetime.now().time()) + " start calc OETSCount") # debug
 			timeTracking = { 'OE'   : 0,
 							 'TS'   : 0 }
 			for issue in issuesList:
@@ -181,12 +193,14 @@ class JiraFilters:
 					timeTracking['TS'] += int(issue['fields']['timetracking']['timeSpentSeconds'])
 				except:
 					pass
+			print(str(datetime.datetime.now().time()) + " end calc OETSCount") # debug
 			return timeTracking
 
 		# подсчет количества пропущенных дней
 		## timesheet_report возвращается timesheet report api и содержит информацию о залогированном времени.
 		## подробнее http://www.jiratimesheet.com/wiki/RESTful_endpoint.html
 		def daysMissedCount(timesheet_report):
+			print(str(datetime.datetime.now().time()) + " start calc daysMissedCount") # debug
 			fromdate = date(year, month, 1)       # c
 			todate   = date(year, month, lastDay) # по
 			
@@ -214,14 +228,34 @@ class JiraFilters:
 			missedCount -= (lastDay - daysInMonth)
 			if(missedCount < 0):
 				missedCount = 0
+			print(str(datetime.datetime.now().time()) + " end calc daysMissedCount") # debug
 			return missedCount
 
 		# подсчет времени на внутренние задачи
 		## timesheet_report возвращается timesheet report api и содержит информацию о залогированном времени.
 		## подробнее http://www.jiratimesheet.com/wiki/RESTful_endpoint.html
 		def getTimeInternal(timesheet_report):
+			print(str(datetime.datetime.now().time()) + " start calc getTimeInternal") # debug
 			# компоненты внутренних задач
-			internal_components = ("Internal Task", "IP Test Bench", "Recommended Platforms", "Review", "Test Plan","Auto Test","Bug Bash","Development","HeadHunting","Matrix")
+			internal_components = ( "Auto Test",
+									"Bug Bash",
+									"Development",
+									"HeadHunting",
+									"Internal Task", 
+									"IP Test Bench", 
+									"Matrix",
+									"Recommended Platforms", 
+									"Review", 
+									"Test Plan",
+									"Закупка комплектующих",
+									"Претензия",
+									"Разработка",
+									"Расчет",
+									"Ремонт",
+									"Сборка",
+									"Program Management",
+									"TPS",
+									"Axxon Technical Pre-sale Consultations" )
 			# время на внутренние задачи
 			timeInternal = 0
 			# цикл по задачам в отчете
@@ -237,10 +271,27 @@ class JiraFilters:
 							timeInternal += int(entry['timeSpent'])
 						# нужно только первое совпадение, поэтому из цикла по компонентам выходим намеренно
 						continue
+			print(str(datetime.datetime.now().time()) + " end calc getTimeInternal") # debug
 			return timeInternal
+
+		# подсчет общего рабочего времени
+		## timesheet_report возвращается timesheet report api и содержит информацию о залогированном времени.
+		## подробнее http://www.jiratimesheet.com/wiki/RESTful_endpoint.html
+		def getTimeTotal(timesheet_report):
+			print(str(datetime.datetime.now().time()) + " start calc getTimeTotal") # debug
+			# общее рабочее время
+			timeTotal = 0
+			# цикл по задачам в отчете
+			for issue in timesheet_report:
+				for entry in issue['entries']:
+					# если задача таки внутренняя, учитываем ее время
+					timeTotal += int(entry['timeSpent'])
+			print(str(datetime.datetime.now().time()) + " end calc getTimeTotal") # debug
+			return timeTotal
 
 		# end of функции для расчета______________________________________________________________
 		
+		print(str(datetime.datetime.now().time()) + " start calc values") # debug
 		# расчет__________________________________________________________________________________
 		## Требуемое время (часов)
 		hoursRequired = daysInMonth * 8
@@ -255,17 +306,25 @@ class JiraFilters:
 
 		__timeInternal = getTimeInternal(user_timesheet_report['worklog'])
 
-		__testVelocity = (__issuesCountByType['bugs_total'] + __issuesCountByType['improvements'] + __issuesCountByType['requirements']) / daysInMonth
+		__timeTotal = getTimeTotal(user_timesheet_report['worklog'])
+
+		__timeTesting = __timeTotal - __timeInternal
+
+		__loggingQuality = (__timeTotal/60/60) / hoursRequired
+
+		bugs_total_weights = (__issuesCountByType['bugs_blocker'] + __issuesCountByType['bugs_critical'] + __issuesCountByType['bugs_major']) * 4 + (__issuesCountByType['bugs_minor'] + __issuesCountByType['bugs_trivial'] + __issuesCountByType['requirements'] + __issuesCountByType['improvements'])
+		__testVelocity = round(bugs_total_weights * 8 / (__timeTesting/60/60), 2)
+
 		try:
 			OE_TS = __QA_OETSCount['OE']/__QA_OETSCount['TS']
 		except:
 			OE_TS = 0
+		print(str(datetime.datetime.now().time()) + " end calc values and start write to DB") # debug
 		# end of расчет___________________________________________________________________________
 
 		# сохранение в БД ________________________________________________________________________
-		metricsDB = MetricsDB()
-
-		_user = metricsDB.getmUser(user)
+		
+		_user = self.metricsDB.getmUser(user)
 		if(_user != False):
 			userID = _user['id']
 		else:
@@ -285,14 +344,16 @@ class JiraFilters:
 							'original_estimate': __QA_OETSCount['OE'],
 							'time_spent':        __QA_OETSCount['TS'],
 							'time_internal':     __timeInternal,
-							'time_testing':      0,
+							'time_total':        __timeTotal,
+							'time_testing':      __timeTesting,
 							'hours_required':    hoursRequired,
 							'days_missed':       __daysMissedCount,
-							'logging_quality':   0,
-							'testing_velocity':  __testVelocity,
-							'oe_ts': OE_TS }
+							'logging_quality':   round(__loggingQuality, 2),
+							'testing_velocity':  round(__testVelocity, 2),
+							'oe_ts':             round(OE_TS, 2) }
 		# print(__QA_OETSCount['OE']/__QA_OETSCount['TS'])
-		if(metricsDB.addMetrics(metricsValues)):
-			return metricsDB.getMetrics(month, year)
+		print(str(datetime.datetime.now().time()) + " Done!") # debug
+		if(self.metricsDB.addMetrics(metricsValues)):
+			return self.metricsDB.getMetrics(month, year)
 		else:
 			return []
