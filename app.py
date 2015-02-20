@@ -1,5 +1,5 @@
 import logging
-from flask import Flask, request, Response, render_template
+from flask import Flask, request, Response, make_response, render_template
 from flask.ext.restful import reqparse, abort, Api, Resource
 import requests
 from requests.auth import HTTPBasicAuth
@@ -348,6 +348,19 @@ class GetMetrics(Resource):
 		args = metrics_parser.parse_args()
 		return metrics.getMetrics(int(args['month']), int(args['year']))
 
+class GetCSV(Resource):
+	def get(self):
+		args = metrics_parser.parse_args()
+		if(args['month'] != None and args['year'] != None):
+			csv = """"Сотрудник";"Месяц";"Год";"Год месяц";"Blocker + Critical + Major";"Trivial + Minor";"Рабочее время (часов)";"Требуемое время (часов)";"Пропущено дней";"Запланир. время (секунд)";"Потраченное время (секунд)";"OE/TS";"Качество логирования";"Время на внутр. задачи (часов)";"Занятость в тестировании (часов)";"Кол-во созданных замечаний";"Скорость тестирования";"Комментарий";"Размер премии, %";"bugs_blocker";"bugs_critical";"bugs_major";"bugs_minor";"bugs_trivial";"improvements";"PM";""" + "\n"
+			csvList = metrics.getMetrics(int(args['month']), int(args['year']))
+			for item in csvList:
+				csv += item['user_id'] + ";" + str(item['month']) + ";" + str(item['year']) + ";" + "-;" + str(item['bugs_blocker'] + item['bugs_critical'] + item['bugs_major']) + ";" + str(item['bugs_minor'] + item['bugs_trivial'] + item['improvements']) + ";" + str(round(item['time_total']/60/60, 2)) + ";" + str(item['hours_required']) + ";" + str(item['days_missed']) + ";" + str(item['time_spent']) + ";" + str(item['original_estimate']) + ";" +  str(item['oe_ts']) + ";" + str(item['logging_quality']) + ";" + str(round(item['time_internal']/60/60,2)) + ";" + str(round(item['time_testing']/60/60,2)) + ";" +  str(item['issues_count']) + ";" + str(item['testing_velocity']) + ";" +  "-;" +   "-;" +  str(item['bugs_blocker']) + ";" + str(item['bugs_critical']) + ";" +  str(item['bugs_major']) + ";" +  str(item['bugs_minor']) + ";" +  str(item['bugs_trivial']) + ";" + str(item['improvements']) + ";" + str(item['requirements']) + "\n"
+			output = make_response(csv)
+			output.headers["Content-Disposition"] = "attachment; filename=export.csv"
+			output.headers["Content-type"] = "text/csv"
+			return output
+
 class GetMetricsProgress(Resource):
 	def get(self):
 		return jiraMetrics.getMetricsProgress()
@@ -443,6 +456,9 @@ api.add_resource(StartMetrics,
 
 api.add_resource(GetMetricsProgress,
 	'/metrics/progress')
+
+api.add_resource(GetCSV,
+	'/metrics/csv')
 
 api.add_resource(WorkDays,
 	'/metrics/workdays/<string:year>/<string:month>')
