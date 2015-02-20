@@ -91,6 +91,7 @@ class JiraFilters:
 
 		# функция для потока сбора метрик
 		def process():
+			startTime = datetime.datetime.now()
 			appSettings = dataBase.getMainSettings()
 			username = appSettings['bamboo_token'].split(":")[0]
 			password = appSettings['bamboo_token'].split(":")[1]
@@ -299,10 +300,9 @@ class JiraFilters:
 				## время, затраченное в QA
 				__QA_OETSCount = OETSCount(user_issues_assignee['issues'])
 				## время, затраченное в DEV
-				__DevOETSCount = OETSCount(user_dev_issues_assignee['issues'])
+				#__DevOETSCount = OETSCount(user_dev_issues_assignee['issues'])
 				
-				## пропущено дней
-				
+				## пропущено дней	
 				__daysMissedCount = daysMissedCount(user_timesheet_report['worklog'])
 				
 				## время на внутренние задачи
@@ -368,7 +368,8 @@ class JiraFilters:
 					pass
 				else:
 					errorsCount += 1
-			self.infoMessage = str(datetime.datetime.now().time())  + ": Сборк метрик завершен. Количество ошибок: " + str(errorsCount)
+			endTime = datetime.datetime.now() - startTime
+			self.infoMessage = str(datetime.datetime.now().time())[0:8]  + ": Сборк метрик завершен. Количество ошибок: " + str(errorsCount) + ". Общее время: " + str(endTime.seconds) + " секунд"
 			self.done = 1
 			if(errorsCount == 0):
 				return True

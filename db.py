@@ -123,7 +123,7 @@ class MetricsDB(object):
 	def removemUser(self, username):
 		try:
 			user = mUser.get(mUser.name == username)
-			user.delete_instance()
+			user.delete_instance(recursive=True, delete_nullable=True)
 			return True
 		except:
 			return False

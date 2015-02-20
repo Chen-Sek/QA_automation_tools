@@ -88,6 +88,7 @@ app.controller('MetricsController', function($scope, $http, $interval){
     $http.delete('/metrics/users/' + user).success(function(data, status, headers, config) {
         $scope.message = data;
         getUsers();
+        getMetricsFromDB($scope.metrics);
         console.log($scope.message.message);
     }).error(function(data, status, headers, config) { });
   }
