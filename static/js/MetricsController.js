@@ -5,7 +5,7 @@ app.config(['$interpolateProvider', function($interpolateProvider) {
   $interpolateProvider.endSymbol(']]');
 }]);
 
-app.controller('MetricsController', function($scope, $http){
+app.controller('MetricsController', function($scope, $http, $interval){
 
   $scope.selection = [];
 
@@ -45,6 +45,7 @@ app.controller('MetricsController', function($scope, $http){
   $scope.updateWorkdaysCount = function(date) {
     getWorkdays(date);
     getMetricsFromDB($scope.metrics);
+    $scope.showMetricsProgress = false;
   }
 
   // toggle selection for a given user by name
@@ -130,14 +131,38 @@ app.controller('MetricsController', function($scope, $http){
   // получение метрик из jira
   $scope.getMetrics = function(metrics) {
     $scope.metricsDisableClass = "disabled loading";
+    $scope.showMetricsProgress = true;
     month = metrics.date.getMonth() + 1;
     year  = metrics.date.getFullYear();
-    $http.get('/metrics/get?users=' + $scope.selection + '&month=' + month + '&year=' + year + '&daysInMonth=' + metrics.days).success(function(data, status, headers, config) {
-      $scope.gotmetrics = data;
-      $scope.totalmetrics = totalMetrics($scope.gotmetrics);
-      console.log("metrics recieved.");
-      $scope.metricsDisableClass = "enabled";
+    $http.get('/metrics/start?users=' + $scope.selection + '&month=' + month + '&year=' + year + '&daysInMonth=' + metrics.days).success(function(data, status, headers, config) {
+      //$scope.gotmetrics = data;
+      //$scope.totalmetrics = totalMetrics($scope.gotmetrics);
+      console.log(data.message);
+      currentMetricsProgress = $interval(getProgress, 1000);
+      //$scope.metricsDisableClass = "enabled";
     }).error(function(data, status, headers, config) { });
+  }
+
+  // получение прогресса загрузки
+  function getProgress() {
+    console.log("Запрос состояния сбора метрик");
+    $http.get('/metrics/progress').success(function(data, status, headers, config) {
+      // флаг завершения
+      $scope.done = data.done;
+      // информация
+      $scope.metricsInfo = data.info;
+
+      if(data.done == 1) {
+        $scope.metricsDisableClass = "enabled";
+        $interval.cancel(currentMetricsProgress);
+        console.log("Сбор метрик завершен");
+        getMetricsFromDB($scope.metrics);
+      }
+    }).error(function(data, status, headers, config) {
+      $interval.cancel(currentMetricsProgress);
+      getMetricsFromDB($scope.metrics);
+      console.log("Ошибка запроса состояния сбора метрик");
+    });
   }
 
   // получение метрик из БД

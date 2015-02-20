@@ -243,7 +243,6 @@ class UpdateFilters(Resource):
 				jiraFilterIssuesID  = int(plan['jira_filter_issues'])
 				jiraFilterCheckedID = int(plan['jira_filter_checked'])
 			except:
-				print("ferror")
 				return {"result": "ferror", "message": "Невозможно получить параметры фильтров из БД, либо ID фильтра не является числом"}
 			try:
 				jiraExecutor = JiraFilters()
@@ -264,7 +263,6 @@ class UpdateFilters(Resource):
 					print("Date updated!")
 				return {"result": "done", "message": "Filters updated"}
 			except:
-				print("error")
 				return {"result": "ferror", "message": "Ошибка при обращении к Jira API. Возможно, Jira не работает, либо ID фильтра задан некорректно"}
 		else:
 			return {"result": "ferror", "message": "Ошибка при обращении к БД"}
@@ -335,18 +333,24 @@ class User(Resource):
 		else:
 			return {"message": "error remove user"}
 
-class GetMetrics(Resource):
+jiraMetrics = JiraFilters()
+
+class StartMetrics(Resource):
 	def get(self):
 		args = metrics_parser.parse_args()
 		if(args['users'] != None):
 			users = args['users'].split(",")
-			__metrics = []
-			jiraMetrics = JiraFilters()
-			for user in users:
-				__metrics = jiraMetrics.getMetrics(user, int(args['daysInMonth']), int(args['month']), int(args['year']))
-			return __metrics
-		else:
-			return metrics.getMetrics(int(args['month']), int(args['year']))
+			jiraMetrics.getMetrics(users, int(args['daysInMonth']), int(args['month']), int(args['year']))
+		return {"message": "Metrics collection started"}
+
+class GetMetrics(Resource):
+	def get(self):
+		args = metrics_parser.parse_args()
+		return metrics.getMetrics(int(args['month']), int(args['year']))
+
+class GetMetricsProgress(Resource):
+	def get(self):
+		return jiraMetrics.getMetricsProgress()
 
 class WorkDays(Resource):
 	def get(self, year, month):
@@ -433,6 +437,12 @@ api.add_resource(User,
 
 api.add_resource(GetMetrics,
 	'/metrics/get')
+
+api.add_resource(StartMetrics,
+	'/metrics/start')
+
+api.add_resource(GetMetricsProgress,
+	'/metrics/progress')
 
 api.add_resource(WorkDays,
 	'/metrics/workdays/<string:year>/<string:month>')

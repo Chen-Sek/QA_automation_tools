@@ -110,6 +110,7 @@
               </tr>
             </tbody>
           </table>
+          <div class="ui small yellow message" ng-show = "showMetricsProgress" >[[metricsInfo]]</div>
           <div class="ui tiny purple button mpopup" ng-click = "getMetrics(metrics)" ng-class = "metricsDisableClass" data-content="Если метрики уже были расчитаны, значения будут обновлены" data-position="right center">Рассчитать метрики для выбранных пользователей за указанный месяц</div>
         </div>
       </div>
