@@ -82,9 +82,9 @@ class Metrics(Model):
 	# время на тестирование
 	time_testing     = FloatField(default = "0")
 	# требуемое время в часах
-	hours_required   = FloatField(default = "0")
+	hours_required   = IntegerField(default = "0")
 	# пропущено дней
-	days_missed      = FloatField(default = "0")
+	days_missed      = IntegerField(default = "0")
 	# качество логирования времени
 	logging_quality  = FloatField(default = "0")
 	# скорость тестирования
