@@ -110,8 +110,9 @@
               </tr>
             </tbody>
           </table>
+          <a href = "/metrics/csv?year=[[metrics.date.getFullYear()]]&month=[[metrics.date.getMonth() + 1]]">Загрузить в формате CSV</a><br>
           <div class="ui small yellow message" ng-show = "showMetricsProgress" >[[metricsInfo]]</div>
-          <div class="ui tiny purple button mpopup" ng-click = "getMetrics(metrics)" ng-class = "metricsDisableClass" data-content="Если метрики уже были расчитаны, значения будут обновлены" data-position="right center">Рассчитать метрики для выбранных пользователей за указанный месяц</div>
+          <div class="ui tiny purple button mpopup" style = "margin-top:10px" ng-click = "getMetrics(metrics)" ng-class = "metricsDisableClass" data-content="Если метрики уже были расчитаны, значения будут обновлены" data-position="right center">Рассчитать метрики для выбранных пользователей за указанный месяц</div>
         </div>
       </div>
     </div>
