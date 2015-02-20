@@ -359,9 +359,11 @@ class GetCSV(Resource):
 				csv +=  user[0] +" " + user[1] + ";" + str(item['month']) + ";" + str(item['year']) + ";" + "-;" + str(item['bugs_blocker'] + item['bugs_critical'] + item['bugs_major']) + ";" + str(item['bugs_minor'] + item['bugs_trivial'] + item['improvements']) + ";" + str(round(item['time_total']/60/60, 2)) + ";" + str(item['hours_required']) + ";" + str(item['days_missed']) + ";" + str(item['time_spent']) + ";" + str(item['original_estimate']) + ";" +  str(item['oe_ts']) + ";" + str(item['logging_quality']) + ";" + str(round(item['time_internal']/60/60,2)) + ";" + str(round(item['time_testing']/60/60,2)) + ";" +  str(item['issues_count']) + ";" + str(item['testing_velocity']) + ";" +  "-;" +   "-;" +  str(item['bugs_blocker']) + ";" + str(item['bugs_critical']) + ";" +  str(item['bugs_major']) + ";" +  str(item['bugs_minor']) + ";" +  str(item['bugs_trivial']) + ";" + str(item['improvements']) + ";" + str(item['requirements']) + "\n"
 			csv = csv.replace(".", ",")
 			output = make_response(csv)
-			output.headers["Content-Disposition"] = "attachment; filename=export.csv"
+			output.headers["Content-Disposition"] = "attachment; filename=Metrics-"+ args['year'] + "-" + args['month'] + ".csv"
 			output.headers["Content-type"] = "text/csv"
 			return output
+		else:
+			return False
 
 class GetMetricsProgress(Resource):
 	def get(self):
